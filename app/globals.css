@@ -1,0 +1,101 @@
+:root {
+  --background: #1c1915;
+  --foreground: #f4efe6;
+  --color-background: #1c1915;
+  --color-sidebar: #231f1a;
+  --color-surface: #2b261f;
+  --color-surface-muted: #363025;
+  --color-surface-raised: #40382c;
+  --color-border: #51483b;
+  --color-border-strong: #665b4b;
+  --color-text: #f4efe6;
+  --color-text-muted: #c9beb0;
+  --color-text-subtle: #9d9182;
+  --color-accent: #d8b98c;
+  --color-accent-hover: #ead0aa;
+  --color-accent-soft: #4a3b2a;
+  --color-success: #8abf8a;
+  --color-success-soft: #263f2a;
+  --color-warning: #d3a35b;
+  --color-warning-soft: #47351f;
+  --color-danger: #d8796f;
+  --color-danger-soft: #432724;
+  --shadow-panel: 0 8px 24px rgba(0, 0, 0, 0.18);
+  --shadow-panel-hover: 0 10px 28px rgba(0, 0, 0, 0.24);
+  --font-sans: var(--font-geist-sans, ui-sans-serif, system-ui, sans-serif);
+  --font-mono: var(--font-geist-mono, ui-monospace, monospace);
+  color-scheme: dark;
+}
+
+.dark {
+  --background: #1c1915;
+  --foreground: #f4efe6;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* FullCalendar overrides */
+.fc {
+  --fc-border-color: #e4e4e7;
+  --fc-button-bg-color: #ffffff;
+  --fc-button-border-color: #d4d4d8;
+  --fc-button-text-color: #18181b;
+  --fc-button-hover-bg-color: #f4f4f5;
+  --fc-button-hover-border-color: #d4d4d8;
+  --fc-button-active-bg-color: #18181b;
+  --fc-button-active-border-color: #18181b;
+  --fc-button-active-text-color: #ffffff;
+  --fc-today-bg-color: #f4f4f5;
+  --fc-event-bg-color: #18181b;
+  --fc-event-border-color: #18181b;
+  --fc-page-bg-color: #ffffff;
+  --fc-neutral-bg-color: #fafafa;
+}
+
+.dark .fc {
+  --fc-border-color: var(--color-border);
+  --fc-button-bg-color: var(--color-surface);
+  --fc-button-border-color: var(--color-border-strong);
+  --fc-button-text-color: var(--color-text);
+  --fc-button-hover-bg-color: var(--color-surface-muted);
+  --fc-button-hover-border-color: var(--color-border-strong);
+  --fc-button-active-bg-color: var(--color-accent);
+  --fc-button-active-border-color: var(--color-accent);
+  --fc-button-active-text-color: #1c1915;
+  --fc-today-bg-color: var(--color-accent-soft);
+  --fc-event-bg-color: var(--color-accent);
+  --fc-event-border-color: var(--color-accent);
+  --fc-page-bg-color: var(--color-background);
+  --fc-neutral-bg-color: var(--color-surface);
+}
+
+.fc .fc-toolbar-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.fc .fc-button {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.75rem;
+}
+
+.fc .fc-col-header-cell {
+  padding: 0.5rem 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}

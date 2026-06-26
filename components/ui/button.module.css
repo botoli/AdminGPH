@@ -1,0 +1,93 @@
+.base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition-property: color, background-color, border-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 180ms;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.base:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+
+.base:disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Variants */
+.default {
+  background: var(--color-accent);
+  color: #1c1915;
+  box-shadow: none;
+}
+
+.default:hover {
+  background: var(--color-accent-hover);
+}
+
+.outline {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.outline:hover {
+  background-color: var(--color-surface-muted);
+}
+
+.ghost {
+  color: var(--color-text);
+}
+
+.ghost:hover {
+  background-color: var(--color-surface-muted);
+}
+
+.destructive {
+  background-color: var(--color-danger);
+  color: #ffffff;
+}
+
+.destructive:hover {
+  background-color: #e28c82;
+}
+
+:global(.dark) .destructive {
+  background-color: var(--color-danger);
+}
+
+:global(.dark) .destructive:hover {
+  background-color: #e28c82;
+}
+
+/* Sizes */
+.sm {
+  height: 2.25rem;
+  padding-left: 0.8rem;
+  padding-right: 0.8rem;
+  font-size: 0.78rem;
+  line-height: 1rem;
+}
+
+.md {
+  height: 2.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.lg {
+  height: 2.875rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
+}

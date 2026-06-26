@@ -1,0 +1,36 @@
+.switch {
+  position: relative;
+  display: inline-flex;
+  width: 3rem;
+  height: 1.8rem;
+  align-items: center;
+  padding: 0.2rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-muted);
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.switch:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 42%, transparent);
+}
+
+.checked {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.thumb {
+  width: 1.3rem;
+  height: 1.3rem;
+  border-radius: 999px;
+  background: var(--color-text);
+  box-shadow: 0 1px 6px rgb(0 0 0 / 0.18);
+  transition: transform 160ms ease;
+}
+
+.checked .thumb {
+  transform: translateX(1.16rem);
+}

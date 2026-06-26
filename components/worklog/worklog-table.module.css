@@ -1,0 +1,225 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.dateInput {
+  width: 10rem;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.buttonIcon {
+  margin-right: 0.375rem;
+  height: 0.875rem;
+  width: 0.875rem;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  font-size: 0.875rem;
+}
+
+.theadRow {
+  border-bottom: 1px solid var(--color-border);
+}
+
+:global(.dark) .theadRow {
+  border-bottom-color: var(--color-border);
+}
+
+.th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
+.thRight {
+  text-align: right;
+}
+
+.thAction {
+  width: 5rem;
+}
+
+.tbody tr + tr {
+  border-top: 1px solid var(--color-border);
+}
+
+:global(.dark) .tbody tr + tr {
+  border-top-color: var(--color-border);
+}
+
+.tr {
+  /* group is used for hover effects in child elements */
+}
+
+.tr:hover {
+  background-color: var(--color-surface-muted);
+}
+
+:global(.dark) .tr:hover {
+  background-color: var(--color-surface-muted);
+}
+
+.td {
+  padding: 0.625rem 1rem;
+  color: var(--color-text);
+}
+
+:global(.dark) .td {
+  color: var(--color-text);
+}
+
+.tdCell {
+  padding: 0.625rem 1rem;
+}
+
+.tdText {
+  color: var(--color-text);
+}
+
+:global(.dark) .tdText {
+  color: var(--color-text);
+}
+
+.tdExtId {
+  margin-left: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.tdRight {
+  text-align: right;
+}
+
+.tdBold {
+  font-weight: 500;
+}
+
+.tdMuted {
+  color: var(--color-text-muted);
+}
+
+:global(.dark) .tdMuted {
+  color: var(--color-text-muted);
+}
+
+.tdComment {
+  padding: 0.625rem 1rem;
+  color: var(--color-text-muted);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:global(.dark) .tdComment {
+  color: var(--color-text-muted);
+}
+
+.tdActions {
+  padding: 0.625rem 0.5rem;
+}
+
+.actionsRow {
+  display: flex;
+  opacity: 0;
+  transition: opacity 150ms;
+}
+
+.tr:hover .actionsRow {
+  opacity: 1;
+}
+
+.actionIconSmall {
+  height: 0.875rem;
+  width: 0.875rem;
+}
+
+.actionIconDanger {
+  height: 0.875rem;
+  width: 0.875rem;
+  color: var(--color-danger);
+}
+
+.emptyRow {
+  padding: 3rem 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.tfootRow {
+  border-top: 2px solid var(--color-border);
+  background-color: var(--color-surface-muted);
+}
+
+:global(.dark) .tfootRow {
+  border-top-color: var(--color-border);
+  background-color: var(--color-surface-muted);
+}
+
+.tfootLabel {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+:global(.dark) .tfootLabel {
+  color: var(--color-text);
+}
+
+.tfootValue {
+  padding: 0.75rem 1rem;
+  text-align: right;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+:global(.dark) .tfootValue {
+  color: var(--color-text);
+}
+
+.dialogBody {
+  /* space-y-4 equivalent on child elements via DialogBody usage */
+}
+
+.dialogBody > * + * {
+  margin-top: 1rem;
+}
+
+.dialogGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.dialogText {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+:global(.dark) .dialogText {
+  color: var(--color-text-muted);
+}

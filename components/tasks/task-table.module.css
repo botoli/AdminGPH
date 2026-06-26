@@ -1,0 +1,254 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.searchWrapper {
+  position: relative;
+  flex: 1;
+  max-width: 24rem;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.625rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--color-text-subtle);
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.375rem 0.625rem 0.375rem 2rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-background);
+  font-size: 0.8125rem;
+  color: var(--color-text);
+  outline: none;
+  transition: border-color 150ms;
+}
+
+.searchInput:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 28%, transparent);
+}
+
+.searchInput::placeholder {
+  color: var(--color-text-subtle);
+}
+
+:global(.dark) .searchInput {
+  border-color: var(--color-border);
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+:global(.dark) .searchInput:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 28%, transparent);
+}
+
+:global(.dark) .searchInput::placeholder {
+  color: var(--color-text-subtle);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+}
+
+.thead {
+  border-bottom: 1px solid var(--color-border);
+}
+
+:global(.dark) .thead {
+  border-bottom-color: var(--color-border);
+}
+
+.th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+:global(.dark) .th {
+  color: var(--color-text-muted);
+}
+
+.th:hover {
+  color: var(--color-text);
+}
+
+:global(.dark) .th:hover {
+  color: var(--color-text);
+}
+
+.sortIcon {
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-left: 0.25rem;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.tr {
+  border-bottom: 1px solid var(--color-border);
+  transition: background-color 150ms;
+  cursor: pointer;
+}
+
+:global(.dark) .tr {
+  border-bottom-color: var(--color-border);
+}
+
+.tr:hover {
+  background-color: var(--color-surface-muted);
+}
+
+:global(.dark) .tr:hover {
+  background-color: var(--color-surface-muted);
+}
+
+.tr:last-child {
+  border-bottom: none;
+}
+
+.td {
+  padding: 0.75rem 1rem;
+}
+
+.externalId {
+  font-family: var(--font-geist-mono, ui-monospace, monospace);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+:global(.dark) .externalId {
+  color: var(--color-text-muted);
+}
+
+.title {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+:global(.dark) .title {
+  color: var(--color-text);
+}
+
+.hoursText {
+  color: var(--color-text-muted);
+}
+
+:global(.dark) .hoursText {
+  color: var(--color-text-muted);
+}
+
+.hoursOver {
+  font-weight: 600;
+  color: var(--color-warning);
+}
+
+:global(.dark) .hoursOver {
+  color: var(--color-accent-hover);
+}
+
+.dateText {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+:global(.dark) .dateText {
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity 150ms;
+}
+
+.tr:hover .actions {
+  opacity: 1;
+}
+
+.actionIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.deleteIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--color-danger);
+}
+
+.emptyRow {
+  padding: 3rem 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+:global(.dark) .emptyRow {
+  color: var(--color-text-muted);
+}
+
+.dialogGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.deleteText {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+:global(.dark) .deleteText {
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 720px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchWrapper {
+    max-width: none;
+  }
+
+  .table {
+    min-width: 760px;
+  }
+
+  .actions {
+    opacity: 1;
+  }
+
+  .dialogGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  externalId  String?
+  title       String
+  description String   @default("")
+  plannedHours Float   @default(0)
+  actualHours Float    @default(0)
+  status      String   @default("NEW")
+  plannedDate String?
+  completedAt String?
+  createdAt   String   @default("")
+  updatedAt   String   @default("")
+
+  worklogs    Worklog[]
+  schedules   TaskSchedule[]
+
+  @@index([status])
+  @@index([plannedDate])
+}
+
+model Worklog {
+  id        String   @id @default(cuid())
+  taskId    String
+  workDate  String
+  hours     Float
+  comment   String   @default("")
+  createdAt String   @default("")
+
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([workDate])
+}
+
+model TaskSchedule {
+  id           String @id @default(cuid())
+  taskId       String
+  scheduleDate String
+  plannedHours Float  @default(0)
+
+  task         Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([scheduleDate])
+  @@unique([taskId, scheduleDate])
+}
+
+model Settings {
+  id                String @id @default("default")
+  hourlyRate        Float  @default(1000)
+  weeklyPlanHours   Float  @default(20)
+  monthlyPlanHours  Float  @default(80)
+  monthlyIncomeGoal Float  @default(0)
+  forecastMode      String @default("CURRENT_MONTH_PACE")
+}
+
+model MonthlyExpense {
+  id        String @id @default(cuid())
+  name      String
+  amount    Float
+  month     Int
+  year      Int
+  isFixed   Boolean @default(false)
+  createdAt String @default("")
+  updatedAt String @default("")
+
+  @@unique([name, month, year])
+  @@index([month, year])
+}
+
+model WishlistItem {
+  id        String @id @default(cuid())
+  title     String
+  amount    Float
+  createdAt String @default("")
+  updatedAt String @default("")
+
+  @@index([createdAt])
+}
+
+model MonthlyReport {
+  id          String   @id @default(cuid())
+  month       Int
+  year        Int
+  totalHours  Float
+  totalAmount Float
+  generatedAt String   @default("")
+
+  @@unique([month, year])
+}
