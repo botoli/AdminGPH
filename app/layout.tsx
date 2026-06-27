@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Providers } from "./providers";
 import styles from "./layout.module.css";
 import "./globals.css";
 
@@ -28,7 +30,10 @@ export default function RootLayout({
       lang="en"
       className={`dark ${geistSans.variable} ${geistMono.variable} ${styles.html}`}
     >
-      <body className={styles.body}>{children}</body>
+      <body className={styles.body}>
+        <Providers>{children}</Providers>
+        <SpeedInsights />
+      </body>
     </html>
   );
 }
