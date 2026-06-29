@@ -3,7 +3,7 @@
 import styles from "./sidebar.module.css";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   ListTodo,
@@ -37,9 +37,25 @@ const navGroups: { label?: string; items: NavItem[] }[] = [
   { label: "Система", items: [{ label: "Настройки", href: "/finance", icon: Settings2 }] },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  variant?: "default" | "dashboard";
+}
+
+export function Sidebar({ variant = "default" }: SidebarProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const isDashboard = variant === "dashboard";
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [isOpen]);
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -48,7 +64,7 @@ export function Sidebar() {
 
   return (
     <>
-      <header className={styles.mobileHeader}>
+      <header className={`${styles.mobileHeader} ${isDashboard ? styles.dashboardMobileHeader : ""}`}>
         <div className={styles.mobileBrand}>
           <div className={styles.logo}>
             <BriefcaseBusiness className={styles.logoIcon} />
@@ -63,7 +79,7 @@ export function Sidebar() {
           className={styles.menuButton}
           aria-label="Открыть меню"
           aria-expanded={isOpen}
-          onClick={() => setIsOpen(true)}
+          onClick={() => setIsOpen((open) => !open)}
         >
           <Menu className={styles.menuIcon} />
         </button>
@@ -78,7 +94,10 @@ export function Sidebar() {
         />
       ) : null}
 
-      <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ""}`}>
+      <aside
+        className={`${styles.sidebar} ${isDashboard ? styles.dashboardSidebar : ""} ${isOpen ? styles.sidebarOpen : ""}`}
+        aria-label="Основная навигация"
+      >
         <div className={styles.brand}>
           <div className={styles.logo}>
             <BriefcaseBusiness className={styles.logoIcon} />
@@ -109,13 +128,17 @@ export function Sidebar() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
+                    prefetch={false}
                     className={`${styles.link} ${active ? styles.linkActive : ""}`}
+                    aria-label={item.label}
+                    aria-current={active ? "page" : undefined}
+                    title={isDashboard ? item.label : undefined}
                     onClick={() => setIsOpen(false)}
                   >
                     <Icon
                       className={`${styles.icon} ${active ? styles.iconActive : ""}`}
                     />
-                    {item.label}
+                    <span className={styles.linkLabel}>{item.label}</span>
                   </Link>
                 </li>
               );

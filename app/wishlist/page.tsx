@@ -8,7 +8,7 @@ export default async function WishlistPage() {
   const overview = await getFinanceOverview();
 
   return (
-    <AppShell>
+    <AppShell variant="dashboard">
       <WishlistPlannerV2
         freeCash={overview.freeCash}
         selectedTotal={overview.selectedWishlistTotal}

@@ -29,12 +29,13 @@ export default async function FinancePage() {
   };
 
   return (
-    <AppShell>
+    <AppShell variant="dashboard">
       <div className={styles.page}>
-        <div>
+        <header className={styles.pageHeader}>
+          <p className={styles.eyebrow}>Система</p>
           <h1 className={styles.title}>Настройки</h1>
           <p className={styles.subtitle}>Ставка до НДФЛ, цели по часам и текущий финансовый расчет</p>
-        </div>
+        </header>
         <FinanceCards data={data} />
       </div>
     </AppShell>

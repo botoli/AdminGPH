@@ -35,7 +35,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
   const years = Array.from({ length: 5 }, (_, i) => now.getFullYear() - 2 + i);
 
   return (
-    <AppShell>
+    <AppShell variant="dashboard">
       <div className={styles.page}>
         <div><p className={styles.eyebrow}>Документы</p><h1 className={styles.title}>Сформировать акт</h1><p className={styles.subtitle}>Сначала проверьте состав и итоговую сумму, затем скачайте Excel.</p></div>
         <Card>

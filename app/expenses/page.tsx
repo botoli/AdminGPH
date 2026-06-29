@@ -9,14 +9,15 @@ export default async function ExpensesPage() {
   const overview = await getFinanceOverview();
 
   return (
-    <AppShell>
+    <AppShell variant="dashboard">
       <div className={styles.page}>
-        <div className={styles.header}>
+        <header className={styles.header}>
           <div>
+            <p className={styles.eyebrow}>Финансовый план</p>
             <h1 className={styles.title}>Расходы</h1>
             <p className={styles.subtitle}>Обязательные траты и копилки, которые вместе формируют общий расход месяца.</p>
           </div>
-        </div>
+        </header>
         <ExpensePlanner
           month={overview.period.month}
           year={overview.period.year}

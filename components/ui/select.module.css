@@ -24,7 +24,7 @@
 .base {
   width: 100%;
   appearance: none;
-  border-radius: 0.375rem;
+  border-radius: 0.75rem;
   border: 1px solid var(--color-border);
   background-color: var(--color-background);
   color: var(--color-text);

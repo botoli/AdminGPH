@@ -17,12 +17,13 @@ export default async function WorklogPage() {
   ]);
 
   return (
-    <AppShell>
+    <AppShell variant="dashboard">
       <div className={styles.page}>
-        <div>
+        <header className={styles.pageHeader}>
+          <p className={styles.eyebrow}>Рабочий процесс</p>
           <h1 className={styles.title}>Учёт времени</h1>
           <p className={styles.subtitle}>Записывай фактические часы по задачам и используй их в отчётах.</p>
-        </div>
+        </header>
         <WorklogTable
           initialWorklogs={worklogs.map((item) => ({
             id: item.id,

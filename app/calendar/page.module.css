@@ -4,24 +4,8 @@
   gap: 1.5rem;
 }
 
-.title {
-  font-size: 1.5rem;
-  line-height: 2rem;
-  font-weight: 700;
-  letter-spacing: 0;
-  color: var(--color-text);
-}
+.pageHeader { padding: 0.25rem 0 1.1rem; }
 
-:global(.dark) .title {
-  color: var(--color-text);
-}
-
-.subtitle {
-  margin-top: 0.25rem;
-  font-size: 0.875rem;
-  color: var(--color-text-muted);
-}
-
-:global(.dark) .subtitle {
-  color: var(--color-text-muted);
-}
+.eyebrow { margin: 0; color: var(--color-text-subtle); font-size: 0.72rem; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; }
+.title { margin: 0.4rem 0 0; color: var(--color-text); font-size: clamp(1.85rem, 3vw, 2.2rem); font-weight: 620; letter-spacing: -0.04em; line-height: 1.1; }
+.subtitle { margin: 0.55rem 0 0; color: var(--color-text-muted); font-size: 0.86rem; }

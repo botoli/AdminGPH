@@ -1,21 +1,21 @@
 .control {
   position: relative;
   display: inline-flex;
-  min-height: 2.35rem;
+  min-height: 2.65rem;
   align-items: center;
   gap: 0.55rem;
-  padding: 0 0.75rem;
+  padding: 0 0.9rem;
   border: 1px solid var(--color-border);
-  border-radius: 0.6rem;
+  border-radius: 14px;
   background: var(--color-surface);
   color: var(--color-text);
   font-size: 0.82rem;
   font-weight: 550;
   cursor: pointer;
-  transition: border-color 160ms ease, background 160ms ease;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
 }
 
-.control:hover { border-color: var(--color-border-strong); background: var(--color-surface-muted); }
+.control:hover { border-color: color-mix(in srgb, var(--color-accent) 24%, var(--color-border)); background: var(--color-surface-muted);}
 .control:focus-within { outline: 2px solid color-mix(in srgb, var(--color-accent) 55%, transparent); outline-offset: 2px; }
 .control > svg { width: 0.9rem; height: 0.9rem; color: var(--color-text-muted); }
 .control .chevron { width: 0.75rem; }
@@ -26,4 +26,9 @@
   width: 100%;
   opacity: 0;
   cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .control { transition: none; }
+  .control:hover { transform: none; }
 }

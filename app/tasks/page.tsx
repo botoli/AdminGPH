@@ -26,14 +26,15 @@ export default async function TasksPage() {
   }));
 
   return (
-    <AppShell>
+    <AppShell variant="dashboard">
       <div className={styles.page}>
-        <div>
+        <header className={styles.pageHeader}>
+          <p className={styles.eyebrow}>Рабочий процесс</p>
           <h1 className={styles.title}>Задачи</h1>
           <p className={styles.subtitle}>
             Управление задачами и отслеживание прогресса
           </p>
-        </div>
+        </header>
         <TaskTable initialTasks={taskRows} netHourlyRate={calculateAfterNdfl(settings?.hourlyRate ?? 1000)} />
       </div>
     </AppShell>
