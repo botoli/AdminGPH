@@ -1,18 +1,8 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  getFilteredRowModel,
-  createColumnHelper,
-  flexRender,
-  type SortingState,
-} from "@tanstack/react-table";
 import styles from "./task-table.module.css";
-import { Badge, type BadgeVariant } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -29,9 +19,9 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { formatHours } from "@/lib/utils";
-import { Plus, Search, Pencil, Trash2, ArrowUpDown } from "lucide-react";
-import { createTask, updateTask, deleteTask } from "@/actions/task-actions";
+import { formatCurrency, formatHours } from "@/lib/utils";
+import { Plus, Search, Pencil, Trash2 } from "lucide-react";
+import { createTask, updateTask, deleteTask, updateTaskStatus } from "@/actions/task-actions";
 
 export interface TaskRow {
   id: string;
@@ -41,19 +31,13 @@ export interface TaskRow {
   actualHours: number;
   status: string;
   plannedDate: string | null;
+  completedAt: string | null;
 }
 
 interface TaskTableProps {
   initialTasks: TaskRow[];
+  netHourlyRate: number;
 }
-
-const STATUS_VARIANT_MAP: Record<string, BadgeVariant> = {
-  NEW: "new",
-  PLANNED: "planned",
-  IN_PROGRESS: "in_progress",
-  COMPLETED: "completed",
-  PAID: "paid",
-};
 
 const taskFormSchema = z.object({
   externalId: z.string().optional(),
@@ -68,106 +52,27 @@ const taskFormSchema = z.object({
 type TaskFormValues = z.infer<typeof taskFormSchema>;
 type TaskFormInput = z.input<typeof taskFormSchema>;
 
-const columnHelper = createColumnHelper<TaskRow>();
-
-export function TaskTable({ initialTasks }: TaskTableProps) {
+export function TaskTable({ initialTasks, netHourlyRate }: TaskTableProps) {
   const router = useRouter();
-  const [data, setData] = useState<TaskRow[]>(initialTasks);
-  const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [monthFilter, setMonthFilter] = useState(() => new Date().toISOString().slice(0, 7));
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskRow | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<TaskRow | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const columns = useMemo(
-    () => [
-      columnHelper.accessor("externalId", {
-        header: "Внешний ID",
-        cell: (info) => (
-          <span className={styles.externalId}>
-            {info.getValue() ?? "\u2014"}
-          </span>
-        ),
-        size: 120,
-      }),
-      columnHelper.accessor("title", {
-        header: "Название",
-        cell: (info) => (
-          <span className={styles.title}>
-            {info.getValue()}
-          </span>
-        ),
-      }),
-      columnHelper.accessor("plannedHours", {
-        header: "План",
-        cell: (info) => (
-          <span className={styles.hoursText}>
-            {formatHours(info.getValue())}
-          </span>
-        ),
-        size: 90,
-      }),
-      columnHelper.accessor("actualHours", {
-        header: "Факт",
-        cell: (info) => (
-          <span
-            className={
-              info.getValue() > (info.row.original.plannedHours || 0)
-                ? styles.hoursOver
-                : styles.hoursText
-            }
-          >
-            {formatHours(info.getValue())}
-          </span>
-        ),
-        size: 90,
-      }),
-      columnHelper.accessor("status", {
-        header: "Статус",
-        cell: (info) => {
-          const s = info.getValue();
-          return (
-            <Badge variant={STATUS_VARIANT_MAP[s] ?? "default"} size="sm">
-              {s.replace("_", " ")}
-            </Badge>
-          );
-        },
-        size: 120,
-      }),
-      columnHelper.accessor("plannedDate", {
-        header: "Дата",
-        cell: (info) => (
-          <span className={styles.dateText}>
-            {info.getValue() ?? "\u2014"}
-          </span>
-        ),
-        size: 120,
-      }),
-    ],
-    [],
-  );
-
-  useEffect(() => {
-    setData(initialTasks);
-  }, [initialTasks]);
-
-  const table = useReactTable({
-    data,
-    columns,
-    state: { sorting, columnFilters: [], globalFilter },
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    globalFilterFn: "auto",
-  });
-
   const filteredByStatus = useMemo(() => {
-    if (statusFilter === "ALL") return data;
-    return data.filter((t) => t.status === statusFilter);
-  }, [data, statusFilter]);
+    const query = globalFilter.trim().toLowerCase();
+    return initialTasks.filter((task) => {
+      const matchesStatus = statusFilter === "ALL" || task.status === statusFilter;
+      const taskMonth = (task.completedAt ?? task.plannedDate ?? "").slice(0, 7);
+      const matchesMonth = monthFilter === "ALL" || taskMonth === monthFilter;
+      const matchesQuery = !query || task.title.toLowerCase().includes(query) || task.externalId?.toLowerCase().includes(query);
+      return matchesStatus && matchesMonth && matchesQuery;
+    });
+  }, [initialTasks, statusFilter, monthFilter, globalFilter]);
+  const totals = useMemo(() => filteredByStatus.reduce((sum, task) => ({ plan: sum.plan + task.plannedHours, actual: sum.actual + task.actualHours, amount: sum.amount + task.actualHours * netHourlyRate }), { plan: 0, actual: 0, amount: 0 }), [filteredByStatus, netHourlyRate]);
 
   const form = useForm<TaskFormInput, undefined, TaskFormValues>({
     resolver: zodResolver(taskFormSchema),
@@ -242,25 +147,15 @@ export function TaskTable({ initialTasks }: TaskTableProps) {
           />
         </div>
         <Select options={statusOptions} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} />
+        <input aria-label="Фильтр по месяцу" className={styles.monthInput} type="month" value={monthFilter === "ALL" ? "" : monthFilter} onChange={(e) => setMonthFilter(e.target.value || "ALL")} />
         <Button onClick={openCreate} style={{ marginLeft: "auto" }}><Plus style={{ width: "1rem", height: "1rem", marginRight: "0.375rem" }} />Добавить задачу</Button>
       </div>
+      <div className={styles.filterSummary}><span>{filteredByStatus.length} задач</span><span>План: <strong>{formatHours(totals.plan)}</strong></span><span>Факт: <strong>{formatHours(totals.actual)}</strong></span><span>Сумма: <strong>{formatCurrency(totals.amount)}</strong></span></div>
       <Card>
         <div className={styles.tableWrapper}>
           <table className={styles.table}>
             <thead className={styles.thead}>
-              {table.getHeaderGroups().map((hg) => (
-                <tr key={hg.id}>
-                  {hg.headers.map((header) => (
-                    <th key={header.id} className={styles.th}
-                      style={{ width: header.getSize() }} onClick={header.column.getToggleSortingHandler()}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", cursor: "pointer", userSelect: "none" }}>
-                        {flexRender(header.column.columnDef.header, header.getContext())}<ArrowUpDown className={styles.sortIcon} />
-                      </div>
-                    </th>
-                  ))}
-                  <th className={styles.th} style={{ width: "6rem", textAlign: "right" }}>Действия</th>
-                </tr>
-              ))}
+              <tr><th className={styles.th}>ID</th><th className={styles.th}>Название</th><th className={styles.th}>План</th><th className={styles.th}>Факт</th><th className={styles.th}>Разница</th><th className={styles.th}>Статус</th><th className={styles.th}>Дата завершения</th><th className={styles.th}>Сумма</th><th className={styles.th}>Действия</th></tr>
             </thead>
             <tbody>
               {filteredByStatus.map((task) => (
@@ -269,8 +164,10 @@ export function TaskTable({ initialTasks }: TaskTableProps) {
                   <td className={`${styles.td} ${styles.title}`}>{task.title}</td>
                   <td className={`${styles.td} ${styles.hoursText}`}>{formatHours(task.plannedHours)}</td>
                   <td className={`${styles.td} ${task.actualHours > (task.plannedHours || 0) ? styles.hoursOver : styles.hoursText}`}>{formatHours(task.actualHours)}</td>
-                  <td className={styles.td}><Badge variant={STATUS_VARIANT_MAP[task.status] ?? "default"} size="sm">{task.status.replace("_", " ")}</Badge></td>
-                  <td className={`${styles.td} ${styles.dateText}`}>{task.plannedDate ?? "\u2014"}</td>
+                  <td className={`${styles.td} ${task.actualHours - task.plannedHours > 0 ? styles.hoursOver : styles.hoursText}`}>{task.actualHours - task.plannedHours > 0 ? "+" : ""}{formatHours(task.actualHours - task.plannedHours)}</td>
+                  <td className={styles.td} onClick={(e)=>e.stopPropagation()}><select className={`${styles.inlineStatus} ${styles[`status_${task.status}`] ?? ""}`} value={task.status} onChange={async (e)=>{await updateTaskStatus(task.id,e.target.value);router.refresh();}}>{statusOptions.filter((o)=>o.value!=="ALL").map((option)=><option key={option.value} value={option.value}>{option.label}</option>)}</select></td>
+                  <td className={`${styles.td} ${styles.dateText}`}>{task.completedAt?.slice(0,10) ?? "\u2014"}</td>
+                  <td className={`${styles.td} ${styles.amountText}`}>{formatCurrency(task.actualHours * netHourlyRate)}</td>
                   <td className={styles.td} style={{ textAlign: "right" }}>
                     <div className={styles.actions}>
                       <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); openEdit(task); }}><Pencil className={styles.actionIcon} /></Button>
@@ -280,7 +177,7 @@ export function TaskTable({ initialTasks }: TaskTableProps) {
                 </tr>
               ))}
               {filteredByStatus.length === 0 && (
-                <tr><td colSpan={7} className={styles.emptyRow}>Задачи не найдены.</td></tr>
+                <tr><td colSpan={9} className={styles.emptyRow}>Задачи не найдены.</td></tr>
               )}
             </tbody>
           </table>

@@ -14,7 +14,7 @@ import {
   Dialog, DialogOverlay, DialogContent, DialogHeader,
   DialogTitle, DialogBody, DialogFooter,
 } from "@/components/ui/dialog";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { createSchedule, updateSchedule, deleteSchedule } from "@/actions/schedule-actions";
@@ -33,8 +33,8 @@ interface CalendarViewProps {
 }
 
 const EVENT_COLORS = [
-  "#18181b","#3b82f6","#8b5cf6","#10b981",
-  "#f59e0b","#ef4444","#06b6d4","#ec4899",
+  "#8f73e6","#b18cff","#6f9bd1","#6faf95",
+  "#c28b69","#a96f91","#7e78b8","#8b6eaa",
 ];
 
 const scheduleSchema = z.object({
@@ -75,7 +75,7 @@ export function CalendarView({ initialEvents, tasks }: CalendarViewProps) {
     defaultValues: { taskId: "", scheduleDate: "", plannedHours: 0 },
   });
 
-  const selectedTaskId = form.watch("taskId");
+  const selectedTaskId = useWatch({ control: form.control, name: "taskId" });
 
   const normalizeDate = useCallback((dateStr: string) => dateStr.slice(0, 10), []);
 

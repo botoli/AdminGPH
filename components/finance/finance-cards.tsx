@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select } from "@/components/ui/select";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { formatCurrency, formatHours, formatPercent } from "@/lib/utils";
@@ -109,10 +109,10 @@ export function FinanceCards({ data, className }: Props) {
     },
   });
 
-  const weeklyValue = Number(form.watch("weeklyPlanHours")) || 0;
-  const monthlyValue = Number(form.watch("monthlyPlanHours")) || 0;
-  const hourlyValue = Number(form.watch("hourlyRate")) || 0;
-  const monthlyIncomeGoalValue = Number(form.watch("monthlyIncomeGoal")) || 0;
+  const weeklyValue = Number(useWatch({ control: form.control, name: "weeklyPlanHours" })) || 0;
+  const monthlyValue = Number(useWatch({ control: form.control, name: "monthlyPlanHours" })) || 0;
+  const hourlyValue = Number(useWatch({ control: form.control, name: "hourlyRate" })) || 0;
+  const monthlyIncomeGoalValue = Number(useWatch({ control: form.control, name: "monthlyIncomeGoal" })) || 0;
 
   useEffect(() => {
     if (!syncMonthToWeek) return;

@@ -87,12 +87,18 @@ export type UpdateExpenseInput = z.infer<typeof updateExpenseSchema>;
 export const createWishlistItemSchema = z.object({
   title: z.string().trim().min(1, "Название обязательно"),
   amount: z.coerce.number().min(1, "Сумма должна быть больше 0"),
+  kind: z.enum(["PURCHASE", "SAVINGS"]).default("PURCHASE"),
 });
 
 export type CreateWishlistItemInput = z.infer<typeof createWishlistItemSchema>;
 
 export const updateWishlistItemSchema = createWishlistItemSchema.extend({
   id: z.string(),
+});
+
+export const allocateWishlistItemSchema = z.object({
+  id: z.string().min(1),
+  amount: z.coerce.number().min(0, "Сумма не может быть отрицательной"),
 });
 
 export type UpdateWishlistItemInput = z.infer<typeof updateWishlistItemSchema>;

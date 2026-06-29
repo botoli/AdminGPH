@@ -78,11 +78,17 @@ model MonthlyExpense {
 }
 
 model WishlistItem {
-  id        String @id @default(cuid())
-  title     String
-  amount    Float
-  createdAt String @default("")
-  updatedAt String @default("")
+  id                       String  @id @default(cuid())
+  title                    String
+  amount                   Float
+  kind                     String  @default("PURCHASE")
+  savedAmount              Float   @default(0)
+  allocationAmount         Float   @default(0)
+  allocationMonth          Int?
+  allocationYear           Int?
+  completed                Boolean @default(false)
+  createdAt                String  @default("")
+  updatedAt                String  @default("")
 
   @@index([createdAt])
 }

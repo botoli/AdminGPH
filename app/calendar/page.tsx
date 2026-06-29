@@ -9,8 +9,8 @@ import { startOfMonth, endOfMonth, format } from "date-fns";
 export const dynamic = "force-dynamic";
 
 const COLORS = [
-  "#18181b", "#3b82f6", "#8b5cf6", "#10b981",
-  "#f59e0b", "#ef4444", "#06b6d4", "#ec4899",
+  "#8f73e6", "#b18cff", "#6f9bd1", "#6faf95",
+  "#c28b69", "#a96f91", "#7e78b8", "#8b6eaa",
 ];
 
 export default async function CalendarPage() {
@@ -58,8 +58,8 @@ export default async function CalendarPage() {
     start: task.date,
     plannedHours: task.actualHours,
     kind: "completed",
-    backgroundColor: "#16a34a",
-    borderColor: "#16a34a",
+    backgroundColor: "#4f9c78",
+    borderColor: "#4f9c78",
   }));
 
   const taskList = tasks.map((t) => ({

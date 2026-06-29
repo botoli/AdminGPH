@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Contractor Dashboard",
-  description: "Personal productivity and accounting dashboard for contractors",
+  title: "Подрядчик — личный кабинет",
+  description: "Задачи, часы, отчёты и финансы подрядчика",
 };
 
 export default function RootLayout({
@@ -27,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="ru"
       className={`dark ${geistSans.variable} ${geistMono.variable} ${styles.html}`}
     >
       <body className={styles.body}>

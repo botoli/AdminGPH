@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { createTaskSchema, updateTaskSchema } from "@/lib/validators";
+import { taskStatusEnum } from "@/lib/validators";
 import { revalidatePath } from "next/cache";
 
 export async function createTask(formData: FormData) {
@@ -51,6 +52,24 @@ export async function deleteTask(id: string) {
   await db.task.delete({ where: { id } });
   revalidatePath("/tasks");
   revalidatePath("/");
+}
+
+export async function updateTaskStatus(id: string, status: string) {
+  const parsedStatus = taskStatusEnum.parse(status);
+  const task = await db.task.findUniqueOrThrow({ where: { id } });
+  await db.task.update({
+    where: { id },
+    data: {
+      status: parsedStatus,
+      completedAt: parsedStatus === "COMPLETED" || parsedStatus === "PAID"
+        ? task.completedAt ?? new Date().toISOString()
+        : null,
+      updatedAt: new Date().toISOString(),
+    },
+  });
+  revalidatePath("/tasks");
+  revalidatePath("/");
+  revalidatePath("/reports");
 }
 
 export async function getTask(id: string) {

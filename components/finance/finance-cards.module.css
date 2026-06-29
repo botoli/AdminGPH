@@ -179,17 +179,17 @@
 .inlineErrors p {
   margin: 0;
   font-size: 0.76rem;
-  color: #e6a29a;
+  color: var(--color-danger);
 }
 
 .saveButton {
   border-color: color-mix(in srgb, var(--color-success) 72%, var(--color-background));
   background: var(--color-success);
-  color: #f7fff9;
+  color: var(--color-background);
 }
 
 .saveButton:hover {
-  background: #9dcc9d;
+  background: color-mix(in srgb, var(--color-success) 84%, white);
 }
 
 .summaryPanel {
@@ -376,7 +376,7 @@
 }
 
 .progressFillBlue {
-  background-color: #b6a98f;
+  background-color: var(--color-accent-hover);
 }
 
 .progressFillAmber {

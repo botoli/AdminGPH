@@ -55,7 +55,7 @@ export async function getFinanceOverview(now = new Date()) {
   const monthlyGoal = settings?.monthlyPlanHours ?? 80;
   const weeklyGoal = settings?.weeklyPlanHours ?? 20;
   const monthlyIncomeGoal = settings?.monthlyIncomeGoal ?? 0;
-  const forecastMode: "CURRENT_MONTH_PACE" = "CURRENT_MONTH_PACE";
+  const forecastMode = "CURRENT_MONTH_PACE" as const;
 
   const monthTasks = getCompletedTasksInRange(tasks, monthStart, monthEnd);
   const weekTasks = getCompletedTasksInRange(tasks, weekStart, weekEnd);
@@ -91,11 +91,21 @@ export async function getFinanceOverview(now = new Date()) {
   const totalExpenses = totalManualExpenses + totalFixedExpenses;
   const freeCash = monthlyIncome - totalExpenses;
 
-  const wishlist = wishlistItems.map((item) => ({
-    ...item,
-    additionalIncomeNeeded: calculateAdditionalIncomeNeeded(item.amount, freeCash),
-    monthsToReach: calculateMonthsToReach(item.amount, freeCash),
-  }));
+  const wishlist = wishlistItems.map((item) => {
+    const isCurrentAllocation = item.allocationMonth === period.month && item.allocationYear === period.year;
+    const allocationAmount = isCurrentAllocation ? item.allocationAmount : 0;
+    const remainingAmount = Math.max(0, item.amount - item.savedAmount);
+    return {
+      ...item,
+      allocationAmount,
+      remainingAmount,
+      additionalIncomeNeeded: calculateAdditionalIncomeNeeded(remainingAmount, freeCash),
+      monthsToReach: calculateMonthsToReach(remainingAmount, freeCash),
+    };
+  });
+  const selectedWishlist = wishlist.filter((item) => !item.completed && item.allocationAmount > 0);
+  const selectedWishlistTotal = selectedWishlist.reduce((sum, item) => sum + item.allocationAmount, 0);
+  const afterWishlist = freeCash - selectedWishlistTotal;
 
   return {
     period,
@@ -119,5 +129,8 @@ export async function getFinanceOverview(now = new Date()) {
     totalExpenses,
     freeCash,
     wishlist,
+    selectedWishlist,
+    selectedWishlistTotal,
+    afterWishlist,
   };
 }

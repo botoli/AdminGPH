@@ -37,7 +37,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
   return (
     <AppShell>
       <div className={styles.page}>
-        <div><h1 className={styles.title}>Отчёты</h1><p className={styles.subtitle}>Формирование и просмотр месячных отчётов. Ставка и суммы считаются после НДФЛ 13%.</p></div>
+        <div><p className={styles.eyebrow}>Документы</p><h1 className={styles.title}>Сформировать акт</h1><p className={styles.subtitle}>Сначала проверьте состав и итоговую сумму, затем скачайте Excel.</p></div>
         <Card>
           <Card.Header><h2 className={styles.sectionTitle}>Сформировать отчёт</h2></Card.Header>
           <Card.Content>
@@ -50,7 +50,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
                 <label className={styles.label}>Год</label>
                 <select name="year" defaultValue={selectedYear} className={styles.select}>{years.map(y=><option key={y} value={y}>{y}</option>)}</select>
               </div>
-              <Button type="submit" name="generate" value="1"><FileText className={styles.fileIcon}/>Сформировать</Button>
+              <Button type="submit" name="generate" value="1"><FileText className={styles.fileIcon}/>Показать состав акта</Button>
             </form>
           </Card.Content>
         </Card>
@@ -72,6 +72,12 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
               </div>
             </Card.Header>
             <Card.Content>
+              <div className={styles.reportSummary}>
+                <div><span>Месяц</span><strong>{months[reportData.month - 1]} {reportData.year}</strong></div>
+                <div><span>Завершённых задач</span><strong>{new Set(reportData.rows.map((row) => row.taskId)).size}</strong></div>
+                <div><span>Часов</span><strong>{formatHours(reportData.totalHours)}</strong></div>
+                <div className={styles.summaryAmount}><span>К оплате</span><strong>{formatCurrency(reportData.totalAmount)}</strong></div>
+              </div>
               <div className={styles.tableWrapper}>
                 <table className={styles.table}>
                   <thead className={styles.thead}>

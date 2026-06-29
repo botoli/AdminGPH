@@ -74,6 +74,8 @@
   color: var(--color-text-subtle);
 }
 
+.navGroup + .navGroup { margin-top: 1.15rem; }
+
 .navList {
   display: flex;
   flex-direction: column;

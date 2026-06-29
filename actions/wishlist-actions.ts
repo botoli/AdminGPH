@@ -1,7 +1,8 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { createWishlistItemSchema, updateWishlistItemSchema } from "@/lib/validators";
+import { allocateWishlistItemSchema, createWishlistItemSchema, updateWishlistItemSchema } from "@/lib/validators";
+import { getFinanceOverview } from "@/lib/finance-overview";
 import { revalidatePath } from "next/cache";
 
 function revalidateWishlistPaths() {
@@ -34,10 +35,58 @@ export async function updateWishlistItem(formData: FormData) {
     data: {
       title: parsed.title,
       amount: parsed.amount,
+      kind: parsed.kind,
       updatedAt: new Date().toISOString(),
     },
   });
 
+  revalidateWishlistPaths();
+}
+
+export async function setWishlistAllocation(formData: FormData) {
+  const parsed = allocateWishlistItemSchema.parse(Object.fromEntries(formData.entries()));
+  const overview = await getFinanceOverview();
+  const item = await db.wishlistItem.findUniqueOrThrow({ where: { id: parsed.id } });
+  const currentAllocation = item.allocationMonth === overview.period.month && item.allocationYear === overview.period.year
+    ? item.allocationAmount
+    : 0;
+  const available = Math.max(0, overview.freeCash - overview.selectedWishlistTotal + currentAllocation);
+  const maxAllocation = item.kind === "SAVINGS"
+    ? Math.max(0, item.amount - item.savedAmount + currentAllocation)
+    : item.amount;
+
+  if (parsed.amount > available || parsed.amount > maxAllocation) {
+    throw new Error("На эту хотелку не хватает свободных денег");
+  }
+
+  await db.wishlistItem.update({
+    where: { id: parsed.id },
+    data: {
+      allocationAmount: parsed.amount,
+      allocationMonth: parsed.amount > 0 ? overview.period.month : null,
+      allocationYear: parsed.amount > 0 ? overview.period.year : null,
+      savedAmount: item.kind === "SAVINGS"
+        ? Math.max(0, item.savedAmount - currentAllocation + parsed.amount)
+        : item.savedAmount,
+      updatedAt: new Date().toISOString(),
+    },
+  });
+  revalidateWishlistPaths();
+}
+
+export async function completeWishlistItem(id: string) {
+  const item = await db.wishlistItem.findUniqueOrThrow({ where: { id } });
+  await db.wishlistItem.update({
+    where: { id },
+    data: {
+      completed: true,
+      savedAmount: item.savedAmount,
+      allocationAmount: 0,
+      allocationMonth: null,
+      allocationYear: null,
+      updatedAt: new Date().toISOString(),
+    },
+  });
   revalidateWishlistPaths();
 }
 

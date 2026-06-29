@@ -43,9 +43,9 @@
   border: 1px solid #bfdbfe;
 }
 :global(.dark) .new {
-  background-color: #17263a;
-  color: #c8b99a;
-  border-color: #2d4364;
+  background-color: var(--color-accent-soft);
+  color: var(--color-accent-hover);
+  border-color: var(--color-border-strong);
 }
 
 .planned {
@@ -55,8 +55,8 @@
 }
 :global(.dark) .planned {
   background-color: var(--color-warning-soft);
-  color: #efb85f;
-  border-color: #6d4a24;
+  color: var(--color-warning);
+  border-color: color-mix(in srgb, var(--color-warning) 42%, var(--color-border));
 }
 
 .in_progress {
@@ -65,9 +65,9 @@
   border: 1px solid #e9d5ff;
 }
 :global(.dark) .in_progress {
-  background-color: #312238;
-  color: #d9b7a4;
-  border-color: #594160;
+  background-color: var(--color-surface-raised);
+  color: var(--color-accent);
+  border-color: color-mix(in srgb, var(--color-accent) 38%, var(--color-border));
 }
 
 .completed {
@@ -77,8 +77,8 @@
 }
 :global(.dark) .completed {
   background-color: var(--color-success-soft);
-  color: #88d6a5;
-  border-color: #2e6744;
+  color: var(--color-success);
+  border-color: color-mix(in srgb, var(--color-success) 40%, var(--color-border));
 }
 
 .paid {
@@ -88,8 +88,8 @@
 }
 :global(.dark) .paid {
   background-color: var(--color-success-soft);
-  color: #88d6a5;
-  border-color: #2e6744;
+  color: var(--color-success);
+  border-color: color-mix(in srgb, var(--color-success) 40%, var(--color-border));
 }
 
 .destructive {
@@ -99,8 +99,8 @@
 }
 :global(.dark) .destructive {
   background-color: var(--color-danger-soft);
-  color: #e6a29a;
-  border-color: #7f3030;
+  color: var(--color-danger);
+  border-color: color-mix(in srgb, var(--color-danger) 42%, var(--color-border));
 }
 
 /* Sizes */

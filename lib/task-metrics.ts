@@ -22,7 +22,7 @@ function normalizeDate(raw: string | null | undefined): string | null {
 }
 
 export function getCompletedTaskDate(task: CompletedMetricTask): string | null {
-  if (task.status !== "COMPLETED") return null;
+  if (task.status !== "COMPLETED" && task.status !== "PAID") return null;
   return normalizeDate(task.completedAt) ?? normalizeDate(task.plannedDate);
 }
 

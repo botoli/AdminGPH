@@ -24,7 +24,7 @@
 /* Variants */
 .default {
   background: var(--color-accent);
-  color: #1c1915;
+  color: var(--color-background);
   box-shadow: none;
 }
 
@@ -52,11 +52,11 @@
 
 .destructive {
   background-color: var(--color-danger);
-  color: #ffffff;
+  color: var(--color-background);
 }
 
 .destructive:hover {
-  background-color: #e28c82;
+  background-color: color-mix(in srgb, var(--color-danger) 82%, white);
 }
 
 :global(.dark) .destructive {
@@ -64,7 +64,7 @@
 }
 
 :global(.dark) .destructive:hover {
-  background-color: #e28c82;
+  background-color: color-mix(in srgb, var(--color-danger) 82%, white);
 }
 
 /* Sizes */

@@ -196,5 +196,5 @@
 }
 
 :global(.dark) .errorText {
-  color: #ff8a8a;
+  color: var(--color-danger);
 }

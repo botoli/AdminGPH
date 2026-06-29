@@ -3,7 +3,7 @@
 import styles from "./sidebar.module.css";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   LayoutDashboard,
   ListTodo,
@@ -23,23 +23,23 @@ interface NavItem {
   icon: React.FC<React.SVGProps<SVGSVGElement>>;
 }
 
-const navItems: NavItem[] = [
-  { label: "Главная", href: "/", icon: LayoutDashboard },
-  { label: "Задачи", href: "/tasks", icon: ListTodo },
-  { label: "Календарь", href: "/calendar", icon: Calendar },
-  { label: "Настройки", href: "/finance", icon: Settings2 },
-  { label: "Расходы", href: "/expenses", icon: WalletCards },
-  { label: "Хотелки", href: "/wishlist", icon: Heart },
-  { label: "Отчёты", href: "/reports", icon: BarChart3 },
+const navGroups: { label?: string; items: NavItem[] }[] = [
+  { items: [{ label: "Панель месяца", href: "/", icon: LayoutDashboard }] },
+  { label: "Работа", items: [
+    { label: "Задачи", href: "/tasks", icon: ListTodo },
+    { label: "Календарь", href: "/calendar", icon: Calendar },
+    { label: "Отчёты", href: "/reports", icon: BarChart3 },
+  ] },
+  { label: "Финансы", items: [
+    { label: "Расходы", href: "/expenses", icon: WalletCards },
+    { label: "Хотелки", href: "/wishlist", icon: Heart },
+  ] },
+  { label: "Система", items: [{ label: "Настройки", href: "/finance", icon: Settings2 }] },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
@@ -98,9 +98,10 @@ export function Sidebar() {
         </div>
 
         <nav className={styles.nav}>
-          <p className={styles.navLabel}>Навигация</p>
+          {navGroups.map((group) => <div className={styles.navGroup} key={group.label ?? "home"}>
+          {group.label ? <p className={styles.navLabel}>{group.label}</p> : null}
           <ul className={styles.navList}>
-            {navItems.map((item) => {
+            {group.items.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.href);
 
@@ -120,10 +121,11 @@ export function Sidebar() {
               );
             })}
           </ul>
+          </div>)}
         </nav>
 
         <div className={styles.footer}>
-          <p className={styles.footerText}>Без кабинета сотрудника. Только твои задачи, деньги и ритм работы.</p>
+          <p className={styles.footerText}>Текущий месяц: заработано, распределено, осталось.</p>
         </div>
       </aside>
     </>

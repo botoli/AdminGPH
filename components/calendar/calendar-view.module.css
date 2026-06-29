@@ -197,7 +197,7 @@
 }
 
 .eventDone {
-  background: color-mix(in srgb, var(--color-success) 78%, #183726 22%);
+  background: color-mix(in srgb, var(--color-success) 78%, var(--color-success-soft) 22%);
 }
 
 .eventTitleRow {
