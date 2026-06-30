@@ -46,21 +46,21 @@ export async function MonthPanel({ period }: { period?: string }) {
       value: overview.monthlyIncome,
       hint: "После НДФЛ 13%",
       icon: WalletCards,
-      tone: styles.accentTone,
+      tone: styles.peachTone,
     },
     {
       label: "Свободно после обязательных трат",
       value: overview.freeCash,
       hint: "Копилки и расходы уже учтены",
       icon: PiggyBank,
-      tone: styles.successTone,
+      tone: styles.mintTone,
     },
     {
       label: "После выбранных хотелок",
       value: overview.afterWishlist,
       hint: `${Math.max(0, Math.round((overview.afterWishlist / Math.max(overview.monthlyIncome, 1)) * 100))}% от дохода на руки`,
       icon: ShoppingBag,
-      tone: styles.accentTone,
+      tone: styles.roseTone,
     },
   ];
 
@@ -92,7 +92,7 @@ export async function MonthPanel({ period }: { period?: string }) {
           })}
         </section>
 
-        <section className={styles.panel} aria-labelledby="progress-title">
+        <section className={`${styles.panel} ${styles.featuredPanel}`} aria-labelledby="progress-title">
           <div className={styles.panelHeader}>
             <div className={styles.panelTitle}>
               <span><Clock3 aria-hidden="true" /></span>

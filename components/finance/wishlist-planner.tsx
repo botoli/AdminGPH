@@ -7,15 +7,20 @@ import { Input } from "@/components/ui/input";
 import { createWishlistItem, deleteWishlistItem, updateWishlistItem } from "@/actions/wishlist-actions";
 import { formatCurrency } from "@/lib/utils";
 import styles from "./wishlist-planner.module.css";
-import { PiggyBank, Sparkles, Trash2 } from "lucide-react";
+import { ExternalLink, ImageOff, PiggyBank, Sparkles, Trash2 } from "lucide-react";
 
 export interface WishlistViewItem {
   id: string;
   title: string;
   amount: number;
+  kind: string;
   additionalIncomeNeeded: number;
   monthsToReach: number | null;
+  productUrl: string | null;
+  productImageUrl: string | null;
+  productSource: string | null;
 }
+const SOURCE_LABELS: Record<string, string> = { wildberries: "WB", ozon: "OZON", avito: "Avito", other: "Ссылка" };
 
 interface WishlistPlannerProps {
   freeCash: number;
@@ -75,6 +80,8 @@ export function WishlistPlanner({ freeCash, items }: WishlistPlannerProps) {
               value={newAmount}
               onChange={(event) => setNewAmount(event.target.value)}
             />
+            <Input label="Ссылка на товар" name="productUrl" type="url" placeholder="https://www.wildberries.ru/catalog/..." />
+            <input type="hidden" name="kind" value="PURCHASE" />
             <Button type="submit" disabled={isPending}>
               {isPending ? "Добавляю..." : "Добавить"}
             </Button>
@@ -116,9 +123,22 @@ function WishlistItemCard({ item }: { item: WishlistViewItem }) {
           }
         >
           <input type="hidden" name="id" value={item.id} />
+          <input type="hidden" name="kind" value={item.kind} />
           <div className={styles.editFields}>
             <Input label="Название" name="title" defaultValue={item.title} />
             <Input label="Сумма" name="amount" type="number" min="1" step="1" defaultValue={item.amount} />
+            <Input label="Ссылка на товар" name="productUrl" type="url" defaultValue={item.productUrl ?? ""} />
+          </div>
+          <div className={styles.previewBlock}>
+            {item.productImageUrl ? (
+              // Wishlist previews are third-party marketplace URLs, so plain img keeps config surface small.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img className={styles.previewImage} src={item.productImageUrl} alt={item.title} loading="lazy" />
+            ) : <div className={styles.previewFallback} aria-hidden="true"><ImageOff className={styles.previewIcon} /></div>}
+            <div className={styles.previewCopy}>
+              {item.productSource ? <span className={styles.previewBadge}>{SOURCE_LABELS[item.productSource] ?? "Ссылка"}</span> : null}
+              {item.productUrl ? <a href={item.productUrl} target="_blank" rel="noreferrer" className={styles.previewLink}>Открыть товар <ExternalLink className={styles.previewIcon} /></a> : <span className={styles.previewMuted}>Ссылка не указана</span>}
+            </div>
           </div>
           <div className={styles.analytics}>
             <div className={styles.analyticsBlock}>

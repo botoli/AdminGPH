@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, Check, PiggyBank, ShoppingBag } from "lucide-react";
+import { ArrowRight, Check, ExternalLink, ImageOff, PiggyBank, ShoppingBag } from "lucide-react";
 import { setWishlistAllocation } from "@/actions/wishlist-actions";
 import { formatCurrency } from "@/lib/utils";
 import styles from "./dashboard-wishlist-plan.module.css";
@@ -17,7 +17,11 @@ export interface DashboardWishlistItem {
   allocationAmount: number;
   remainingAmount: number;
   completed: boolean;
+  productUrl: string | null;
+  productImageUrl: string | null;
+  productSource: string | null;
 }
+const SOURCE_LABELS: Record<string, string> = { wildberries: "WB", ozon: "OZON", avito: "Avito", other: "Ссылка" };
 
 interface DashboardWishlistPlanProps {
   freeCash: number;
@@ -120,9 +124,15 @@ export function DashboardWishlistPlan({ freeCash, items, monthName, editable }: 
                     >
                       {selected ? <Check aria-hidden="true" /> : null}
                     </button>
+                    {item.productImageUrl ? (
+                      // Wishlist previews are third-party marketplace URLs, so plain img keeps config surface small.
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img className={styles.purchasePreview} src={item.productImageUrl} alt={item.title} loading="lazy" />
+                    ) : <div className={styles.purchasePreviewFallback} aria-hidden="true"><ImageOff /></div>}
                     <div className={styles.itemCopy}>
                       <strong>{item.title}</strong>
                       <span>{selected ? `Выбрано на ${monthName}` : shortage > 0 ? `Не хватает ${formatCurrency(shortage)}` : "Можно выбрать"}</span>
+                      {item.productUrl ? <a href={item.productUrl} target="_blank" rel="noreferrer" className={styles.itemLink}>{item.productSource ? SOURCE_LABELS[item.productSource] ?? "Ссылка" : "Открыть товар"} <ExternalLink aria-hidden="true" /></a> : null}
                     </div>
                     <b>{formatCurrency(item.amount)}</b>
                     {editable ? (

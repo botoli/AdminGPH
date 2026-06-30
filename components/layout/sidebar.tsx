@@ -10,6 +10,7 @@ import {
   Calendar,
   BarChart3,
   WalletCards,
+  FileUpIcon,
   Heart,
   Settings2,
   BriefcaseBusiness,
@@ -25,16 +26,25 @@ interface NavItem {
 
 const navGroups: { label?: string; items: NavItem[] }[] = [
   { items: [{ label: "Панель месяца", href: "/", icon: LayoutDashboard }] },
-  { label: "Работа", items: [
-    { label: "Задачи", href: "/tasks", icon: ListTodo },
-    { label: "Календарь", href: "/calendar", icon: Calendar },
-    { label: "Отчёты", href: "/reports", icon: BarChart3 },
-  ] },
-  { label: "Финансы", items: [
-    { label: "Расходы", href: "/expenses", icon: WalletCards },
-    { label: "Хотелки", href: "/wishlist", icon: Heart },
-  ] },
-  { label: "Система", items: [{ label: "Настройки", href: "/finance", icon: Settings2 }] },
+  {
+    label: "Работа",
+    items: [
+      { label: "Задачи", href: "/tasks", icon: ListTodo },
+      { label: "Календарь", href: "/calendar", icon: Calendar },
+      { label: "Отчёты", href: "/reports", icon: FileUpIcon },
+    ],
+  },
+  {
+    label: "Финансы",
+    items: [
+      { label: "Расходы", href: "/expenses", icon: WalletCards },
+      { label: "Хотелки", href: "/wishlist", icon: Heart },
+    ],
+  },
+  {
+    label: "Система",
+    items: [{ label: "Настройки", href: "/finance", icon: Settings2 }],
+  },
 ];
 
 interface SidebarProps {
@@ -64,7 +74,9 @@ export function Sidebar({ variant = "default" }: SidebarProps) {
 
   return (
     <>
-      <header className={`${styles.mobileHeader} ${isDashboard ? styles.dashboardMobileHeader : ""}`}>
+      <header
+        className={`${styles.mobileHeader} ${isDashboard ? styles.dashboardMobileHeader : ""}`}
+      >
         <div className={styles.mobileBrand}>
           <div className={styles.logo}>
             <BriefcaseBusiness className={styles.logoIcon} />
@@ -117,38 +129,44 @@ export function Sidebar({ variant = "default" }: SidebarProps) {
         </div>
 
         <nav className={styles.nav}>
-          {navGroups.map((group) => <div className={styles.navGroup} key={group.label ?? "home"}>
-          {group.label ? <p className={styles.navLabel}>{group.label}</p> : null}
-          <ul className={styles.navList}>
-            {group.items.map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.href);
+          {navGroups.map((group) => (
+            <div className={styles.navGroup} key={group.label ?? "home"}>
+              {group.label ? (
+                <p className={styles.navLabel}>{group.label}</p>
+              ) : null}
+              <ul className={styles.navList}>
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const active = isActive(item.href);
 
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    prefetch={false}
-                    className={`${styles.link} ${active ? styles.linkActive : ""}`}
-                    aria-label={item.label}
-                    aria-current={active ? "page" : undefined}
-                    title={isDashboard ? item.label : undefined}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <Icon
-                      className={`${styles.icon} ${active ? styles.iconActive : ""}`}
-                    />
-                    <span className={styles.linkLabel}>{item.label}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-          </div>)}
+                  return (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        prefetch={false}
+                        className={`${styles.link} ${active ? styles.linkActive : ""}`}
+                        aria-label={item.label}
+                        aria-current={active ? "page" : undefined}
+                        title={isDashboard ? item.label : undefined}
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <Icon
+                          className={`${styles.icon} ${active ? styles.iconActive : ""}`}
+                        />
+                        <span className={styles.linkLabel}>{item.label}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
         </nav>
 
         <div className={styles.footer}>
-          <p className={styles.footerText}>Текущий месяц: заработано, распределено, осталось.</p>
+          <p className={styles.footerText}>
+            Текущий месяц: заработано, распределено, осталось.
+          </p>
         </div>
       </aside>
     </>

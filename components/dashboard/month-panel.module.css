@@ -51,12 +51,64 @@
 
 .moneyCard {
   --tone: var(--color-accent);
+  --tone-soft: color-mix(in srgb, var(--tone) 16%, transparent);
+  --tone-glow: color-mix(in srgb, var(--tone) 18%, transparent);
   min-height: 10.5rem;
   padding: 1.25rem;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at top left, var(--tone-soft), transparent 58%),
+    linear-gradient(180deg, color-mix(in srgb, var(--tone) 4%, var(--color-surface)) 0%, var(--color-surface) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    0 18px 34px rgba(0, 0, 0, 0.16);
 }
 
-.accentTone { --tone: var(--color-accent); }
-.successTone { --tone: var(--color-success); }
+.moneyCard::before {
+  content: "";
+  position: absolute;
+  inset: -20% auto auto -10%;
+  width: 7rem;
+  height: 7rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, var(--tone-glow) 0%, transparent 72%);
+  pointer-events: none;
+  opacity: 0.95;
+}
+
+.moneyCard::after {
+  content: "";
+  position: absolute;
+  inset: auto -2rem -2.5rem auto;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.peachTone {
+  --tone: #f0b995;
+  --tone-soft: rgba(240, 185, 149, 0.16);
+  --tone-glow: rgba(240, 185, 149, 0.22);
+  border-color: rgba(240, 185, 149, 0.18);
+}
+
+.mintTone {
+  --tone: #93d0b4;
+  --tone-soft: rgba(147, 208, 180, 0.14);
+  --tone-glow: rgba(147, 208, 180, 0.18);
+  border-color: rgba(147, 208, 180, 0.16);
+}
+
+.roseTone {
+  --tone: #e1abc9;
+  --tone-soft: rgba(225, 171, 201, 0.18);
+  --tone-glow: rgba(225, 171, 201, 0.24);
+  border-color: rgba(225, 171, 201, 0.18);
+}
 
 .moneyTop {
   display: flex;
@@ -80,6 +132,7 @@
   height: 2.35rem;
   flex: 0 0 auto;
   border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .moneyIcon svg { width: 1rem; height: 1rem; }
@@ -87,7 +140,7 @@
 .moneyCard > strong {
   display: block;
   margin-top: 1.2rem;
-  color: var(--color-text);
+  color: color-mix(in srgb, var(--tone) 28%, var(--color-text));
   font-size: clamp(2rem, 3.5vw, 2.75rem);
   font-weight: 610;
   font-variant-numeric: tabular-nums;
@@ -103,6 +156,23 @@
 }
 
 .panel { padding: 1.3rem; }
+
+.featuredPanel {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top right, rgba(204, 189, 255, 0.13), transparent 30%),
+    radial-gradient(circle at bottom left, rgba(226, 125, 136, 0.08), transparent 28%),
+    var(--color-surface);
+}
+
+.featuredPanel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02), transparent 46%);
+  pointer-events: none;
+}
 
 .panelHeader,
 .panelTitle,
@@ -169,7 +239,7 @@
 .progressTrack > div {
   height: 100%;
   border-radius: inherit;
-  background: var(--color-accent);
+  background: linear-gradient(90deg, #e2a8c7 0%, #cdbdff 52%, #9cfcff 100%);
   transition: width 240ms ease;
 }
 
@@ -193,6 +263,32 @@
   gap: 0.15rem 0.6rem;
   padding: 1rem 1rem 0;
   border-left: 1px solid var(--color-border);
+}
+
+.featuredPanel .fact:nth-child(1) .factIcon,
+.featuredPanel .fact:nth-child(2) .factIcon,
+.featuredPanel .fact:nth-child(3) .factIcon {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 11px;
+}
+
+.featuredPanel .fact:nth-child(1) .factIcon {
+  background: rgba(225, 171, 201, 0.14);
+  color: #e4b2cd;
+}
+
+.featuredPanel .fact:nth-child(2) .factIcon {
+  background: rgba(204, 189, 255, 0.14);
+  color: #d4c7ff;
+}
+
+.featuredPanel .fact:nth-child(3) .factIcon {
+  background: rgba(156, 252, 255, 0.12);
+  color: #b8fafc;
 }
 
 .fact:first-child { padding-left: 0; border-left: 0; }

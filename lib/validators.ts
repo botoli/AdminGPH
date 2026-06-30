@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+const optionalUrlSchema = z.preprocess(
+  (value) => {
+    if (typeof value !== "string") return value;
+    const normalized = value.trim();
+    return normalized.length === 0 ? undefined : normalized;
+  },
+  z.url("Укажите корректную ссылку").optional(),
+);
+
 export const taskStatusEnum = z.enum([
   "NEW",
   "PLANNED",
@@ -88,6 +97,7 @@ export const createWishlistItemSchema = z.object({
   title: z.string().trim().min(1, "Название обязательно"),
   amount: z.coerce.number().min(1, "Сумма должна быть больше 0"),
   kind: z.enum(["PURCHASE", "SAVINGS"]).default("PURCHASE"),
+  productUrl: optionalUrlSchema,
 });
 
 export type CreateWishlistItemInput = z.infer<typeof createWishlistItemSchema>;

@@ -104,7 +104,7 @@ Data flow: `Server Component (page.tsx)` → reads DB → passes to `Client Comp
 
 - **Pattern**: Pages are async Server Components. They either call Prisma directly (dashboard `page.tsx` calls `db.taskSchedule.findMany()`) or through Server Actions (`app/tasks/page.tsx` calls `getTasksWithActualHours()`).
 - **All pages use `export const dynamic = "force-dynamic"`** — fully dynamic SSR, no SSG/ISR.
-- **No `fetch()` calls** — all data comes from Prisma.
+- **Almost no `fetch()` calls** — app data comes from Prisma, with one exception: wishlist product preview parsing fetches external product pages on the server (`lib/wishlist-product-preview.ts`) during create/update mutations.
 - **TanStack React Query** is set up in `app/providers.tsx` with `staleTime: 30_000` but is **barely used**. No `useQuery` calls found in any client component. The QueryClientProvider exists but is effectively inert.
 - **Revalidation**: After mutations, Server Actions call `revalidatePath()` for specific paths. Client components call `router.refresh()` to re-fetch server-rendered props.
 - **No optimistic updates** — mutations wait for server response, then refresh the full page data.
@@ -185,7 +185,8 @@ There is **no traditional API layer**. The project uses Next.js Server Actions i
 
 | Script                       | Purpose                                                                      |
 | ---------------------------- | ---------------------------------------------------------------------------- |
-| `dev`                        | `next dev` — local development server                                        |
+| `dev`                        | `next dev --webpack` - local development server; avoids Turbopack HMR reload loops in synced folders |
+| `dev:turbo`                  | `next dev --turbopack` - optional Turbopack development server for explicit testing |
 | `build`                      | `next build` — production build                                              |
 | `start`                      | `next start` — production server                                             |
 | `lint`                       | `eslint` — lint all files                                                    |
@@ -219,6 +220,7 @@ These files and folders should not be modified without thorough review:
 - **`lib/reports.ts`** — Excel report generation with hardcoded Russian template text and formatting. Changes can break client-facing billing documents.
 - **`lib/db.ts`** — Database singleton. Changing the connection pattern could cause connection leaks.
 - **`actions/`** — All 7 files are the only write paths to the database. A bug here can corrupt data.
+- **`lib/wishlist-product-preview.ts`** — External HTML/meta parsing for marketplace pages. Fragile by nature: third-party markup changes or anti-bot responses can silently degrade preview extraction.
 - **`app/providers.tsx`** — Root client wrapper. Breaking changes affect the entire app.
 - **`app/layout.tsx`** — Root layout. Metadata, fonts, forced dark mode, global CSS imports.
 - **`.env`** — Contains live database credentials. Never commit changes without checking.
@@ -302,6 +304,7 @@ When making changes to this project, verify:
 12. **Hardcoded Russian text** — all UI strings, Excel report templates, and validation messages are in Russian. No i18n infrastructure.
 13. **`forecastMode` field** — the Settings model has a `forecastMode` field with only one value (`"CURRENT_MONTH_PACE"`). Dead enum until more modes are added.
 14. **No pagination** — `getTasks()` fetches all tasks without limit/offset. Will degrade with many tasks.
+15. **Wishlist preview parsing is best-effort** — Wildberries/Ozon/Avito may change markup or block requests, so product images can disappear without code changes. The feature must tolerate missing previews.
 
 ## 20. Recommended Agent Workflow
 
@@ -322,6 +325,6 @@ When an AI agent (Codex, Cline, Copilot, etc.) works with this repository:
 
 ## Last Analyzed
 
-- **Date**: 2026-06-29
+- **Date**: 2026-06-30
 - **Analysis scope**: All top-level config files (`package.json`, `next.config.ts`, `tsconfig.json`, `eslint.config.mjs`, `.env`, `postcss.config.mjs`); root layout and providers (`app/layout.tsx`, `app/providers.tsx`); dashboard page (`app/page.tsx`); expenses page (`app/expenses/page.tsx`); tasks page (`app/tasks/page.tsx`); all 7 Server Action files; all files in `lib/` (db, utils, validators, money, finance-overview, task-metrics, reports, integrations/azure-devops/types); Prisma schema and seed; layout components (`AppShell`, `Sidebar`); KPI cards; task table; expense planner; UI primitives (Button). Pages not fully reviewed: `app/calendar/`, `app/finance/`, `app/reports/`, `app/reports/export/`, `app/wishlist/`, `app/worklog/` — marked as "Needs verification" where applicable. Components not reviewed: `CalendarView`, `FinanceCards`, `WishlistPlanner`, `WorklogTable`.
 - **Confidence**: 8/10 — core architecture, data flow, and business logic are well understood. Some pages and components were not fully read (see scope above). The `app/globals.css` and some CSS modules were not reviewed in detail.

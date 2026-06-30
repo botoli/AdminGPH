@@ -11,7 +11,7 @@
   --color-text: #f3edf7;
   --color-text-muted: #b9afc2;
   --color-text-subtle: #8f8299;
-  --color-accent: #b69cff;
+  --color-accent: #9cfcff;
   --color-accent-hover: #ccbdff;
   --color-accent-soft: #2d2440;
   --color-success: #73c6a1;
@@ -45,9 +45,25 @@ body {
   font-family: var(--font-sans);
 }
 
-button, input, select, textarea { font: inherit; }
-a, button, input, select { -webkit-tap-highlight-color: transparent; }
-button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+a,
+button,
+input,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
 
 /* FullCalendar overrides */
 .fc {

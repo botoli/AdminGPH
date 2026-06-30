@@ -82,6 +82,9 @@ model WishlistItem {
   title                    String
   amount                   Float
   kind                     String  @default("PURCHASE")
+  productUrl               String?
+  productImageUrl          String?
+  productSource            String?
   savedAmount              Float   @default(0)
   allocationAmount         Float   @default(0)
   allocationMonth          Int?

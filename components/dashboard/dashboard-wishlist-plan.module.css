@@ -225,3 +225,5 @@
 @media (prefers-reduced-motion: reduce) {
   .track > div, .goalTrack > div, .purchase { transition: none; }
 }
+.purchase{grid-template-columns:auto auto minmax(0,1fr) auto auto}.purchasePreview,.purchasePreviewFallback{width:2.4rem;height:2.4rem;flex:0 0 auto;border-radius:.7rem}.purchasePreview{border:1px solid var(--color-border);object-fit:cover;background:var(--color-background)}.purchasePreviewFallback{display:grid;place-items:center;border:1px dashed var(--color-border);background:var(--color-background);color:var(--color-text-subtle)}.purchasePreviewFallback svg{width:.85rem;height:.85rem}.itemLink{display:inline-flex;align-items:center;gap:.25rem;color:var(--color-accent-hover);font-size:.59rem;font-weight:650;text-decoration:none}.itemLink:hover{color:var(--color-text)}.itemLink svg{width:.72rem;height:.72rem}
+@media (max-width: 620px) {.purchase{grid-template-columns:auto auto minmax(0,1fr) auto}.purchase>b{grid-column:3/5}.purchase .textButton{grid-column:3/5;justify-self:start;padding:0}}

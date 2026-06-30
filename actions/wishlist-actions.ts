@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { allocateWishlistItemSchema, createWishlistItemSchema, updateWishlistItemSchema } from "@/lib/validators";
 import { getFinanceOverview } from "@/lib/finance-overview";
+import { getWishlistProductPreview } from "@/lib/wishlist-product-preview";
 import { revalidatePath } from "next/cache";
 
 function revalidateWishlistPaths() {
@@ -14,10 +15,13 @@ export async function createWishlistItem(formData: FormData) {
   const raw = Object.fromEntries(formData.entries());
   const parsed = createWishlistItemSchema.parse(raw);
   const now = new Date().toISOString();
+  const preview = parsed.productUrl ? await getWishlistProductPreview(parsed.productUrl) : { productImageUrl: null, productSource: null };
 
   await db.wishlistItem.create({
     data: {
       ...parsed,
+      productImageUrl: preview.productImageUrl,
+      productSource: preview.productSource,
       createdAt: now,
       updatedAt: now,
     },
@@ -29,6 +33,7 @@ export async function createWishlistItem(formData: FormData) {
 export async function updateWishlistItem(formData: FormData) {
   const raw = Object.fromEntries(formData.entries());
   const parsed = updateWishlistItemSchema.parse(raw);
+  const preview = parsed.productUrl ? await getWishlistProductPreview(parsed.productUrl) : { productImageUrl: null, productSource: null };
 
   await db.wishlistItem.update({
     where: { id: parsed.id },
@@ -36,6 +41,9 @@ export async function updateWishlistItem(formData: FormData) {
       title: parsed.title,
       amount: parsed.amount,
       kind: parsed.kind,
+      productUrl: parsed.productUrl ?? null,
+      productImageUrl: preview.productImageUrl,
+      productSource: preview.productSource,
       updatedAt: new Date().toISOString(),
     },
   });

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Plus, Trash2 } from "lucide-react";
+import { Check, ExternalLink, ImageOff, Plus, Trash2 } from "lucide-react";
 import { createWishlistItem, deleteWishlistItem, completeWishlistItem, setWishlistAllocation } from "@/actions/wishlist-actions";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,9 +10,10 @@ import { Input } from "@/components/ui/input";
 import { formatCurrency } from "@/lib/utils";
 import styles from "./wishlist-planner-v2.module.css";
 
-interface Item { id:string; title:string; amount:number; kind:string; savedAmount:number; allocationAmount:number; remainingAmount:number; completed:boolean; }
+interface Item { id:string; title:string; amount:number; kind:string; savedAmount:number; allocationAmount:number; remainingAmount:number; completed:boolean; productUrl:string | null; productImageUrl:string | null; productSource:string | null; }
 interface Props { freeCash:number; selectedTotal:number; afterWishlist:number; items:Item[]; month:number; }
 const MONTHS = ["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"];
+const SOURCE_LABELS: Record<string, string> = { wildberries: "WB", ozon: "OZON", avito: "Avito", other: "Ссылка" };
 
 export function WishlistPlannerV2({ freeCash, selectedTotal, afterWishlist, items, month }: Props) {
   const router = useRouter();
@@ -36,7 +37,7 @@ export function WishlistPlannerV2({ freeCash, selectedTotal, afterWishlist, item
       <div><span>Свободно</span><strong>{formatCurrency(freeCash)}</strong></div><div><span>Выбрано</span><strong>{formatCurrency(selectedTotal)}</strong></div><div className={styles.balanceFinal}><span>Останется</span><strong>{formatCurrency(afterWishlist)}</strong></div>
     </section>
     {error ? <p className={styles.errorBanner} role="alert">{error}</p> : null}
-    {showCreate && <Card><Card.Content><form className={styles.createForm} action={(data) => run(async () => { await createWishlistItem(data); setShowCreate(false); })}><Input label="Название" name="title" required/><Input label="Стоимость" name="amount" type="number" min="1" required/><label className={styles.field}><span>Тип</span><select name="kind"><option value="PURCHASE">Купить в этом месяце</option><option value="SAVINGS">Накопительная цель</option></select></label><Button type="submit" disabled={pending}>Добавить</Button></form></Card.Content></Card>}
+    {showCreate && <Card><Card.Content><form className={styles.createForm} action={(data) => run(async () => { await createWishlistItem(data); setShowCreate(false); })}><Input label="Название" name="title" required/><Input label="Стоимость" name="amount" type="number" min="1" required/><Input label="Ссылка на товар" name="productUrl" type="url" placeholder="https://www.ozon.ru/product/..."/><label className={styles.field}><span>Тип</span><select name="kind"><option value="PURCHASE">Купить в этом месяце</option><option value="SAVINGS">Накопительная цель</option></select></label><Button type="submit" disabled={pending}>Добавить</Button></form></Card.Content></Card>}
     <section className={styles.list}>
       {active.length === 0 ? <div className={styles.empty}>Список пуст. Добавьте первую покупку или накопительную цель.</div> : active.map((item) => {
         const availableForItem = Math.max(0, afterWishlist + item.allocationAmount);
@@ -53,6 +54,17 @@ function WishlistRow({ item, available, pending, run }: { item:Item; available:n
   const selected = item.allocationAmount > 0;
   const allocate = (amount:number) => { const data = new FormData(); data.set("id", item.id); data.set("amount", String(amount)); run(() => setWishlistAllocation(data)); };
   return <article className={`${styles.item} ${selected ? styles.itemSelected : ""}`}>
+    <div className={styles.previewRow}>
+      {item.productImageUrl ? (
+        // Wishlist previews are third-party marketplace URLs, so plain img keeps config surface small.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className={styles.previewImage} src={item.productImageUrl} alt={item.title} loading="lazy"/>
+      ) : <div className={styles.previewFallback} aria-hidden="true"><ImageOff/></div>}
+      <div className={styles.previewMeta}>
+        {item.productSource ? <span className={styles.marketBadge}>{SOURCE_LABELS[item.productSource] ?? "Ссылка"}</span> : null}
+        {item.productUrl ? <a href={item.productUrl} target="_blank" rel="noreferrer" className={styles.marketLink}>Открыть товар <ExternalLink/></a> : <span className={styles.marketHint}>Ссылка не указана</span>}
+      </div>
+    </div>
     <div className={styles.itemMain}>
       <div><span className={styles.type}>{isSavings ? "Накопительная цель" : "Покупка"}</span><h2>{item.title}</h2></div>
       <strong className={styles.price}>{formatCurrency(item.amount)}</strong>
