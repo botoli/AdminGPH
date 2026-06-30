@@ -10,15 +10,14 @@ export default async function FinancePage() {
   const overview = await getFinanceOverview();
 
   const data: FinanceData = {
+    dailyRate: overview.dailyRate,
     hourlyRate: overview.hourlyRate,
     netHourlyRate: overview.netHourlyRate,
     monthlyIncome: overview.monthlyIncome,
     workedHoursMonth: overview.workedHoursMonth,
     weeklyGoal: overview.weeklyGoal,
     monthlyGoal: overview.monthlyGoal,
-    monthlyIncomeGoal: overview.monthlyIncomeGoal,
     forecastMode: overview.forecastMode,
-    incomeGoalProgressPercent: overview.incomeGoalProgressPercent,
     workedHoursWeek: overview.workedHoursWeek,
     remainingToMonthly: overview.remainingToMonthly,
     projectedIncome: overview.projectedIncome,
@@ -34,7 +33,7 @@ export default async function FinancePage() {
         <header className={styles.pageHeader}>
           <p className={styles.eyebrow}>Система</p>
           <h1 className={styles.title}>Настройки</h1>
-          <p className={styles.subtitle}>Ставка до НДФЛ, цели по часам и текущий финансовый расчет</p>
+          <p className={styles.subtitle}>Ставка за человеко-день, цели по часам и текущий финансовый расчет</p>
         </header>
         <FinanceCards data={data} />
       </div>

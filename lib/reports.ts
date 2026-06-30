@@ -54,7 +54,7 @@ export async function generateMonthlyReport(
     }),
   ]);
 
-  const rate = calculateAfterNdfl(settings?.hourlyRate ?? 1000);
+  const rate = calculateAfterNdfl((settings?.dailyRate ?? (settings?.hourlyRate ?? 1000) * 8) / 8);
   const rows: ReportRow[] = worklogs.length > 0
     ? worklogs.map((w) => ({
         date: w.workDate,

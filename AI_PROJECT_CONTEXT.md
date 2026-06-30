@@ -71,7 +71,7 @@ Data flow: `Server Component (page.tsx)` → reads DB → passes to `Client Comp
 | `actions/`                               | 7 Server Action files: expense, settings, task, worklog, report, schedule, wishlist                                     | All follow same pattern: parse FormData → Prisma → revalidatePath                                | Medium |
 | `prisma/schema.prisma`                   | Database schema: Task, Worklog, TaskSchedule, Settings, MonthlyExpense, WishlistItem, MonthlyReport                     | 7 models, string dates throughout, no enums                                                      | High   |
 | `prisma/seed.ts`                         | Seed script with sample tasks, worklogs, schedules, report                                                              | Development-only                                                                                 | Low    |
-| `prisma/migrations/`                     | Prisma migration history                                                                                                | Critical — never edit manually                                                                   | High   |
+| `prisma/migrations/`                     | Prisma migration history, включая добавление ставки за человеко-день                                                    | Critical — never edit manually                                                                   | High   |
 | `generated/`                             | Stale Prisma client output                                                                                              | **Legacy** — appears to be from older Prisma version, `lib/db.ts` uses `@prisma/client` directly | Low    |
 | `scripts/migrate-sqlite-to-postgres.ts`  | One-shot migration script from SQLite → PostgreSQL                                                                      | May still be relevant if dev.db is the old source                                                | Low    |
 | `public/`                                | Static assets: SVG icons (file, globe, next, vercel, window)                                                            | Standard Next.js                                                                                 | Low    |
@@ -280,6 +280,8 @@ When making changes to this project, verify:
 - [ ] **Money math**: Changes to `lib/money.ts` affect all financial displays. Double-check NDFL calculations.
 - [ ] **Excel reports**: Changes to `lib/reports.ts` affect client billing. Verify output format matches the hardcoded template.
 
+**Настройки ставки**: `Settings.dailyRate` — основной редактируемый тариф за 8 часов. `hourlyRate` сохраняется синхронно как `dailyRate / 8` для совместимости; финансовые расчеты используют производную почасовую ставку.
+
 **Common mistakes to avoid**:
 
 - Importing `db` directly in Client Components — will cause build errors.
@@ -325,6 +327,6 @@ When an AI agent (Codex, Cline, Copilot, etc.) works with this repository:
 
 ## Last Analyzed
 
-- **Date**: 2026-06-30
+- **Date**: 2026-07-01
 - **Analysis scope**: All top-level config files (`package.json`, `next.config.ts`, `tsconfig.json`, `eslint.config.mjs`, `.env`, `postcss.config.mjs`); root layout and providers (`app/layout.tsx`, `app/providers.tsx`); dashboard page (`app/page.tsx`); expenses page (`app/expenses/page.tsx`); tasks page (`app/tasks/page.tsx`); all 7 Server Action files; all files in `lib/` (db, utils, validators, money, finance-overview, task-metrics, reports, integrations/azure-devops/types); Prisma schema and seed; layout components (`AppShell`, `Sidebar`); KPI cards; task table; expense planner; UI primitives (Button). Pages not fully reviewed: `app/calendar/`, `app/finance/`, `app/reports/`, `app/reports/export/`, `app/wishlist/`, `app/worklog/` — marked as "Needs verification" where applicable. Components not reviewed: `CalendarView`, `FinanceCards`, `WishlistPlanner`, `WorklogTable`.
 - **Confidence**: 8/10 — core architecture, data flow, and business logic are well understood. Some pages and components were not fully read (see scope above). The `app/globals.css` and some CSS modules were not reviewed in detail.

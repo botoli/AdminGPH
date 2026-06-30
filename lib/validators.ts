@@ -62,10 +62,9 @@ export const createScheduleSchema = z.object({
 export type CreateScheduleInput = z.infer<typeof createScheduleSchema>;
 
 export const updateSettingsSchema = z.object({
-  hourlyRate: z.coerce.number().min(1),
+  dailyRate: z.coerce.number().min(1),
   weeklyPlanHours: z.coerce.number().min(1),
   monthlyPlanHours: z.coerce.number().min(1),
-  monthlyIncomeGoal: z.coerce.number().min(0),
   forecastMode: z.enum(["CURRENT_MONTH_PACE"]),
 });
 

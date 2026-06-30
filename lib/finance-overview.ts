@@ -58,7 +58,8 @@ export async function getFinanceOverview(now = new Date(), options: FinanceOverv
     wishlistQuery,
   ]);
 
-  const hourlyRate = settings?.hourlyRate ?? 1000;
+  const dailyRate = settings?.dailyRate ?? (settings?.hourlyRate ?? 1000) * 8;
+  const hourlyRate = dailyRate / 8;
   const netHourlyRate = calculateAfterNdfl(hourlyRate);
   const monthlyGoal = settings?.monthlyPlanHours ?? 80;
   const weeklyGoal = settings?.weeklyPlanHours ?? 20;
@@ -160,6 +161,7 @@ export async function getFinanceOverview(now = new Date(), options: FinanceOverv
 
   return {
     period,
+    dailyRate,
     hourlyRate,
     netHourlyRate,
     monthlyGoal,

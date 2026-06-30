@@ -1,5 +1,9 @@
-.control {
+.wrapper {
   position: relative;
+  display: inline-flex;
+}
+
+.control {
   display: inline-flex;
   min-height: 2.65rem;
   align-items: center;
@@ -11,21 +15,62 @@
   color: var(--color-text);
   font-size: 0.82rem;
   font-weight: 550;
+  font-family: inherit;
   cursor: pointer;
   transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
 }
 
 .control:hover { border-color: color-mix(in srgb, var(--color-accent) 24%, var(--color-border)); background: var(--color-surface-muted);}
-.control:focus-within { outline: 2px solid color-mix(in srgb, var(--color-accent) 55%, transparent); outline-offset: 2px; }
+.control:focus-visible { outline: 2px solid color-mix(in srgb, var(--color-accent) 55%, transparent); outline-offset: 2px; }
 .control > svg { width: 0.9rem; height: 0.9rem; color: var(--color-text-muted); }
 .control .chevron { width: 0.75rem; }
 
-.control input {
+.picker {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  opacity: 0;
+  z-index: 50;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: 17rem;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  box-shadow: 0 18px 50px rgb(0 0 0 / 35%);
+}
+
+.yearRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.yearRow button,
+.monthGrid button {
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
   cursor: pointer;
+}
+
+.yearRow button { display: grid; width: 2rem; height: 2rem; place-items: center; }
+.yearRow svg { width: 1rem; height: 1rem; }
+.yearRow button:hover,
+.monthGrid button:hover { background: var(--color-surface-muted); }
+
+.monthGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem;
+}
+
+.monthGrid button { min-height: 2.25rem; font-size: 0.8rem; }
+.monthGrid .activeMonth { background: var(--color-accent); color: white; }
+
+@media (max-width: 480px) {
+  .picker { right: auto; left: 0; width: min(17rem, calc(100vw - 2rem)); }
 }
 
 @media (prefers-reduced-motion: reduce) {

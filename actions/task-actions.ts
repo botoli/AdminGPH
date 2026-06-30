@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { createTaskSchema, updateTaskSchema } from "@/lib/validators";
 import { taskStatusEnum } from "@/lib/validators";
 import { revalidatePath } from "next/cache";
+import { getCurrentAppDateValue } from "@/lib/app-date";
 
 export async function createTask(formData: FormData) {
   const raw = Object.fromEntries(formData.entries());
@@ -39,7 +40,7 @@ export async function updateTask(formData: FormData) {
       actualHours: parsed.actualHours,
       status: parsed.status,
       plannedDate: parsed.plannedDate || null,
-      completedAt: parsed.completedAt ?? (parsed.status === "COMPLETED" ? new Date().toISOString() : undefined),
+      completedAt: parsed.completedAt ?? (parsed.status === "COMPLETED" ? getCurrentAppDateValue() : undefined),
       updatedAt: new Date().toISOString(),
     },
   });
@@ -62,7 +63,7 @@ export async function updateTaskStatus(id: string, status: string) {
     data: {
       status: parsedStatus,
       completedAt: parsedStatus === "COMPLETED" || parsedStatus === "PAID"
-        ? task.completedAt ?? new Date().toISOString()
+        ? task.completedAt ?? getCurrentAppDateValue()
         : null,
       updatedAt: new Date().toISOString(),
     },

@@ -11,7 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { formatCurrency, formatHours, formatPercent } from "@/lib/utils";
 import styles from "./finance-cards.module.css";
-import { Banknote, Clock3, Coins, Target, TrendingUp } from "lucide-react";
+import { Banknote, Clock3, Coins, TrendingUp } from "lucide-react";
 import { updateSettings } from "@/actions/settings-actions";
 
 const FORECAST_MODE_LABELS = {
@@ -19,10 +19,9 @@ const FORECAST_MODE_LABELS = {
 } as const;
 
 export interface FinanceData {
-  hourlyRate: number; netHourlyRate: number; monthlyIncome: number; workedHoursMonth: number;
+  dailyRate: number; hourlyRate: number; netHourlyRate: number; monthlyIncome: number; workedHoursMonth: number;
   weeklyGoal: number; monthlyGoal: number; workedHoursWeek: number;
-  remainingToMonthly: number; projectedIncome: number;
-  monthlyIncomeGoal: number; forecastMode: keyof typeof FORECAST_MODE_LABELS; incomeGoalProgressPercent: number;
+  remainingToMonthly: number; projectedIncome: number; forecastMode: keyof typeof FORECAST_MODE_LABELS;
   completedTasksMonth: number; completedTasksWeek: number;
   totalExpenses: number; freeCash: number;
 }
@@ -30,10 +29,9 @@ export interface FinanceData {
 interface Props { data: FinanceData; className?: string; }
 
 const schema = z.object({
-  hourlyRate: z.coerce.number().min(1, "Минимум 1"),
+  dailyRate: z.coerce.number().min(1, "Минимум 1"),
   weeklyPlanHours: z.coerce.number().min(1, "Минимум 1"),
   monthlyPlanHours: z.coerce.number().min(1, "Минимум 1"),
-  monthlyIncomeGoal: z.coerce.number().min(0, "Минимум 0"),
   forecastMode: z.enum(["CURRENT_MONTH_PACE"]),
 });
 type FV = z.output<typeof schema>;
@@ -58,7 +56,7 @@ function NumberField({
 }) {
   const setValue = (next: number) => {
     const safe = Number.isFinite(next) ? next : min;
-    onChange(Math.max(min, Math.round(safe * 100) / 100));
+    onChange(Math.max(min, Math.round(safe * 10) / 10));
   };
 
   return (
@@ -74,7 +72,7 @@ function NumberField({
             className={styles.input}
             type="number"
             min={min}
-            step="any"
+            step="0.1"
             value={Number.isFinite(value) ? value : ""}
             onChange={(event) => setValue(Number(event.target.value))}
           />
@@ -82,6 +80,18 @@ function NumberField({
         </label>
         <button type="button" className={styles.stepper} onClick={() => setValue(value + step)} aria-label={`Увеличить ${label}`}>+</button>
       </div>
+    </div>
+  );
+}
+
+function ReadonlyRateField({ value }: { value: number }) {
+  return (
+    <div className={`${styles.fieldCard} ${styles.readonlyCard}`}>
+      <div className={styles.fieldTopline}>
+        <span className={styles.fieldLabel}>Почасовая ставка</span>
+        <span className={styles.fieldHint}>ставка за ч.дн / 8</span>
+      </div>
+      <div className={styles.readonlyValue}>{formatCurrency(value)}<span>/ч</span></div>
     </div>
   );
 }
@@ -101,18 +111,16 @@ export function FinanceCards({ data, className }: Props) {
   const form = useForm<FormInput, unknown, FV>({
     resolver: zodResolver(schema),
     defaultValues: {
-      hourlyRate: data.hourlyRate,
+      dailyRate: data.dailyRate,
       weeklyPlanHours: data.weeklyGoal,
       monthlyPlanHours: data.monthlyGoal,
-      monthlyIncomeGoal: data.monthlyIncomeGoal,
       forecastMode: data.forecastMode,
     },
   });
 
   const weeklyValue = Number(useWatch({ control: form.control, name: "weeklyPlanHours" })) || 0;
   const monthlyValue = Number(useWatch({ control: form.control, name: "monthlyPlanHours" })) || 0;
-  const hourlyValue = Number(useWatch({ control: form.control, name: "hourlyRate" })) || 0;
-  const monthlyIncomeGoalValue = Number(useWatch({ control: form.control, name: "monthlyIncomeGoal" })) || 0;
+  const dailyValue = Number(useWatch({ control: form.control, name: "dailyRate" })) || 0;
 
   useEffect(() => {
     if (!syncMonthToWeek) return;
@@ -123,10 +131,9 @@ export function FinanceCards({ data, className }: Props) {
     setSub(true);
     try {
       const fd = new FormData();
-      fd.set("hourlyRate", String(v.hourlyRate));
+      fd.set("dailyRate", String(v.dailyRate));
       fd.set("weeklyPlanHours", String(v.weeklyPlanHours));
       fd.set("monthlyPlanHours", String(v.monthlyPlanHours));
-      fd.set("monthlyIncomeGoal", String(v.monthlyIncomeGoal));
       fd.set("forecastMode", v.forecastMode);
       await updateSettings(fd);
       r.refresh();
@@ -152,14 +159,15 @@ export function FinanceCards({ data, className }: Props) {
 
         <div className={styles.fieldGrid}>
           <NumberField
-            label="Почасовая ставка"
-            value={hourlyValue}
-            onChange={(value) => form.setValue("hourlyRate", Math.max(1, value), { shouldDirty: true, shouldValidate: true })}
+            label="Ставка за ч.дн"
+            value={dailyValue}
+            onChange={(value) => form.setValue("dailyRate", Math.max(1, value), { shouldDirty: true, shouldValidate: true })}
             step={100}
             min={1}
-            suffix="₽/ч"
-            hint="ручной ввод без шага"
+            suffix="₽/ч.дн"
+            hint="1 ч.дн = 8 часов"
           />
+          <ReadonlyRateField value={dailyValue / 8} />
           <NumberField
             label="Цель на неделю"
             value={weeklyValue}
@@ -177,15 +185,6 @@ export function FinanceCards({ data, className }: Props) {
             min={1}
             suffix="ч"
             hint={syncMonthToWeek ? "авто от недели" : `шаг ${step} ч`}
-          />
-          <NumberField
-            label="Цель дохода на месяц"
-            value={monthlyIncomeGoalValue}
-            onChange={(value) => form.setValue("monthlyIncomeGoal", Math.max(0, value), { shouldDirty: true, shouldValidate: true })}
-            step={1000}
-            min={0}
-            suffix="₽"
-            hint="после НДФЛ"
           />
           <div className={styles.selectCard}>
             <Select
@@ -216,10 +215,9 @@ export function FinanceCards({ data, className }: Props) {
         </div>
 
         <div className={styles.inlineErrors}>
-          {form.formState.errors.hourlyRate?.message ? <p>{form.formState.errors.hourlyRate.message}</p> : null}
+          {form.formState.errors.dailyRate?.message ? <p>{form.formState.errors.dailyRate.message}</p> : null}
           {form.formState.errors.weeklyPlanHours?.message ? <p>{form.formState.errors.weeklyPlanHours.message}</p> : null}
           {form.formState.errors.monthlyPlanHours?.message ? <p>{form.formState.errors.monthlyPlanHours.message}</p> : null}
-          {form.formState.errors.monthlyIncomeGoal?.message ? <p>{form.formState.errors.monthlyIncomeGoal.message}</p> : null}
         </div>
       </form>
 
@@ -261,29 +259,12 @@ export function FinanceCards({ data, className }: Props) {
               <div className={styles.metricRow}>
                 <span><Clock3 className={styles.metricIcon} />Часы</span>
                 <strong>{formatHours(data.workedHoursMonth)}</strong>
-                <em>осталось {formatHours(data.remainingToMonthly)}</em>
-              </div>
-              <div className={styles.metricRow}>
-                <span><Target className={styles.metricIcon} />Цель дохода</span>
-                <strong>{data.monthlyIncomeGoal > 0 ? formatCurrency(data.monthlyIncomeGoal) : "Не задана"}</strong>
-                <em>{data.monthlyIncomeGoal > 0 ? `выполнено ${formatPercent(data.incomeGoalProgressPercent)}` : "можно задать в настройках выше"}</em>
+                <em>{(data.workedHoursMonth / 8).toLocaleString("ru-RU", { maximumFractionDigits: 1 })} ч.дн · осталось {formatHours(data.remainingToMonthly)}</em>
               </div>
             </div>
           </div>
 
           <div className={styles.progressGrid}>
-            <div className={styles.progressPanel}>
-              <div className={styles.progressRow}>
-                <span className={styles.progressLabel}>Доход</span>
-                <span className={styles.progressOf}>
-                  {data.monthlyIncomeGoal > 0 ? `${formatCurrency(data.monthlyIncome)} из ${formatCurrency(data.monthlyIncomeGoal)}` : "цель не задана"}
-                </span>
-              </div>
-              <div className={styles.progressBar}>
-                <div className={`${styles.progressFill} ${fillCls(data.incomeGoalProgressPercent)}`} style={{ width: `${data.incomeGoalProgressPercent}%` }} />
-              </div>
-              <p className={styles.progressPct}>{formatPercent(data.incomeGoalProgressPercent)}</p>
-            </div>
             <div className={styles.progressPanel}>
               <div className={styles.progressRow}>
                 <span className={styles.progressLabel}>Неделя</span>

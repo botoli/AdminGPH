@@ -17,12 +17,14 @@ import { DashboardWishlistPlan } from "@/components/dashboard/dashboard-wishlist
 import { MonthSelector } from "@/components/dashboard/month-selector";
 import { getFinanceOverview } from "@/lib/finance-overview";
 import { formatCurrency, formatHours } from "@/lib/utils";
+import { getCurrentAppDate } from "@/lib/app-date";
 import styles from "./month-panel.module.css";
 
 function resolvePeriod(period?: string) {
-  if (!period) return new Date();
-  const value = parse(period, "yyyy-MM", new Date());
-  return isValid(value) ? value : new Date();
+  const currentDate = getCurrentAppDate();
+  if (!period) return currentDate;
+  const value = parse(period, "yyyy-MM", currentDate);
+  return isValid(value) ? value : currentDate;
 }
 
 export async function MonthPanel({ period }: { period?: string }) {
@@ -34,7 +36,7 @@ export async function MonthPanel({ period }: { period?: string }) {
   const monthLabel = format(date, "LLLL yyyy", { locale: ru });
   const monthTitle = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
   const monthName = format(date, "LLLL", { locale: ru });
-  const wishlistEditable = isSameMonth(date, new Date());
+  const wishlistEditable = isSameMonth(date, getCurrentAppDate());
   const fixed = overview.expenseRows.filter((row) => row.isFixed);
   const home = fixed.find((row) => "percent" in row && row.percent === 40);
   const study = fixed.find((row) => "percent" in row && row.percent === 5);
@@ -73,7 +75,11 @@ export async function MonthPanel({ period }: { period?: string }) {
             <h1>Обзор месяца</h1>
             <p className={styles.subtitle}>Доход, рабочий темп и планы — в одном спокойном рабочем пространстве.</p>
           </div>
-          <MonthSelector value={format(date, "yyyy-MM")} label={monthTitle} />
+          <MonthSelector
+            value={format(date, "yyyy-MM")}
+            label={monthTitle}
+            storageKey="admingph.dashboard.month"
+          />
         </header>
 
         <section className={styles.moneyGrid} aria-label="Финансовые показатели">

@@ -22,6 +22,8 @@ import { z } from "zod";
 import { formatCurrency, formatHours } from "@/lib/utils";
 import { Plus, Search, Pencil, Trash2 } from "lucide-react";
 import { createTask, updateTask, deleteTask, updateTaskStatus } from "@/actions/task-actions";
+import { MonthSelector } from "@/components/dashboard/month-selector";
+import { getCurrentAppMonthValue } from "@/lib/app-date";
 
 export interface TaskRow {
   id: string;
@@ -56,11 +58,17 @@ export function TaskTable({ initialTasks, netHourlyRate }: TaskTableProps) {
   const router = useRouter();
   const [globalFilter, setGlobalFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
-  const [monthFilter, setMonthFilter] = useState(() => new Date().toISOString().slice(0, 7));
+  const [monthFilter, setMonthFilter] = useState(getCurrentAppMonthValue);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskRow | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<TaskRow | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const monthLabel = useMemo(() => {
+    const [year, month] = monthFilter.split("-").map(Number);
+    if (!year || !month) return "Все месяцы";
+    const label = new Intl.DateTimeFormat("ru-RU", { month: "long", year: "numeric" }).format(new Date(year, month - 1, 1));
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  }, [monthFilter]);
 
   const filteredByStatus = useMemo(() => {
     const query = globalFilter.trim().toLowerCase();
@@ -147,7 +155,12 @@ export function TaskTable({ initialTasks, netHourlyRate }: TaskTableProps) {
           />
         </div>
         <Select options={statusOptions} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} />
-        <input aria-label="Фильтр по месяцу" className={styles.monthInput} type="month" value={monthFilter === "ALL" ? "" : monthFilter} onChange={(e) => setMonthFilter(e.target.value || "ALL")} />
+        <MonthSelector
+          value={monthFilter === "ALL" ? "" : monthFilter}
+          label={monthLabel}
+          onChange={setMonthFilter}
+          storageKey="admingph.tasks.month"
+        />
         <Button onClick={openCreate} style={{ marginLeft: "auto" }}><Plus style={{ width: "1rem", height: "1rem", marginRight: "0.375rem" }} />Добавить задачу</Button>
       </div>
       <div className={styles.filterSummary}><span>{filteredByStatus.length} задач</span><span>План: <strong>{formatHours(totals.plan)}</strong></span><span>Факт: <strong>{formatHours(totals.actual)}</strong></span><span>Сумма: <strong>{formatCurrency(totals.amount)}</strong></span></div>

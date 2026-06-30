@@ -9,6 +9,7 @@ async function main() {
     update: {},
     create: {
       id: "default",
+      dailyRate: 8000,
       hourlyRate: 1000,
       weeklyPlanHours: 20,
       monthlyPlanHours: 80,

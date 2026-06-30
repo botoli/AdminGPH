@@ -35,7 +35,7 @@ export default async function TasksPage() {
             Управление задачами и отслеживание прогресса
           </p>
         </header>
-        <TaskTable initialTasks={taskRows} netHourlyRate={calculateAfterNdfl(settings?.hourlyRate ?? 1000)} />
+        <TaskTable initialTasks={taskRows} netHourlyRate={calculateAfterNdfl((settings?.dailyRate ?? (settings?.hourlyRate ?? 1000) * 8) / 8)} />
       </div>
     </AppShell>
   );

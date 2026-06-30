@@ -33,10 +33,10 @@ export default async function WorklogPage() {
             workDate: item.workDate,
             hours: item.hours,
             comment: item.comment,
-            hourlyRate: settings?.hourlyRate ?? 1000,
+            hourlyRate: (settings?.dailyRate ?? (settings?.hourlyRate ?? 1000) * 8) / 8,
           }))}
           initialTasks={tasks}
-          hourlyRate={settings?.hourlyRate ?? 1000}
+          hourlyRate={(settings?.dailyRate ?? (settings?.hourlyRate ?? 1000) * 8) / 8}
         />
       </div>
     </AppShell>

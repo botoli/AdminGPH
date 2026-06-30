@@ -11,10 +11,11 @@ export async function getSettings() {
 export async function updateSettings(formData: FormData) {
   const raw = Object.fromEntries(formData.entries());
   const parsed = updateSettingsSchema.parse(raw);
+  const settings = { ...parsed, hourlyRate: parsed.dailyRate / 8 };
   await db.settings.upsert({
     where: { id: "default" },
-    update: parsed,
-    create: { id: "default", ...parsed },
+    update: settings,
+    create: { id: "default", ...settings },
   });
   revalidatePath("/finance");
   revalidatePath("/");
