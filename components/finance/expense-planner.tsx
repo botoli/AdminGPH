@@ -44,6 +44,8 @@ export function ExpensePlanner({ month, year, income, rows }: ExpensePlannerProp
     .reduce((sum, row) => sum + row.amount, 0);
   const totalExpenses = totalManual + totalFixed;
   const freeCash = income - totalExpenses;
+  const isDeficit = freeCash < 0;
+  const deficitAmount = Math.abs(freeCash);
 
   return (
     <div className={styles.pageGrid}>
@@ -124,8 +126,12 @@ export function ExpensePlanner({ month, year, income, rows }: ExpensePlannerProp
           <Card.Content className={styles.metricCard}>
             <Wallet className={styles.metricIcon} />
             <p className={styles.metricLabel}>Свободно после расходов</p>
-            <p className={styles.metricValue}>{formatCurrency(freeCash)}</p>
-            <p className={styles.metricSub}>{formatCurrency(income)} - {formatCurrency(totalExpenses)} = {formatCurrency(freeCash)}</p>
+            <p className={`${styles.metricValue} ${isDeficit ? styles.metricDanger : ""}`}>{formatCurrency(freeCash)}</p>
+            <p className={styles.metricSub}>
+              {isDeficit
+                ? `Дохода не хватает на обязательные расходы: дефицит ${formatCurrency(deficitAmount)}`
+                : `${formatCurrency(income)} - ${formatCurrency(totalExpenses)} = ${formatCurrency(freeCash)}`}
+            </p>
           </Card.Content>
         </Card>
       </div>

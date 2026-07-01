@@ -9,6 +9,8 @@ import { getCurrentAppDateValue } from "@/lib/app-date";
 export async function createTask(formData: FormData) {
   const raw = Object.fromEntries(formData.entries());
   const parsed = createTaskSchema.parse(raw);
+  const completionDate = parsed.plannedDate || null;
+  const derivedStatus = completionDate ? "COMPLETED" : parsed.status;
   const task = await db.task.create({
     data: {
       externalId: parsed.externalId || null,
@@ -16,8 +18,9 @@ export async function createTask(formData: FormData) {
       description: parsed.description || "",
       plannedHours: parsed.plannedHours,
       actualHours: parsed.actualHours,
-      status: parsed.status,
-      plannedDate: parsed.plannedDate || null,
+      status: derivedStatus,
+      plannedDate: completionDate,
+      completedAt: completionDate,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
@@ -30,6 +33,8 @@ export async function createTask(formData: FormData) {
 export async function updateTask(formData: FormData) {
   const raw = Object.fromEntries(formData.entries());
   const parsed = updateTaskSchema.parse(raw);
+  const completionDate = parsed.plannedDate || null;
+  const derivedStatus = completionDate ? "COMPLETED" : parsed.status;
   const task = await db.task.update({
     where: { id: parsed.id },
     data: {
@@ -38,9 +43,9 @@ export async function updateTask(formData: FormData) {
       description: parsed.description || "",
       plannedHours: parsed.plannedHours,
       actualHours: parsed.actualHours,
-      status: parsed.status,
-      plannedDate: parsed.plannedDate || null,
-      completedAt: parsed.completedAt ?? (parsed.status === "COMPLETED" ? getCurrentAppDateValue() : undefined),
+      status: derivedStatus,
+      plannedDate: completionDate,
+      completedAt: completionDate ?? (parsed.status === "COMPLETED" ? (parsed.completedAt ?? getCurrentAppDateValue()) : null),
       updatedAt: new Date().toISOString(),
     },
   });

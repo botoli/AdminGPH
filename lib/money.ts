@@ -4,7 +4,6 @@ export const NDFL_RATE = 0.13;
 
 export const FIXED_EXPENSES = [
   { name: "Копилка на квартиру", percent: 40 },
-  { name: "Копилка на учебу", percent: 5 },
 ] as const;
 
 export const MONTHLY_EXPENSE_CATEGORIES = [

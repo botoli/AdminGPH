@@ -103,7 +103,15 @@ export function TaskTable({ initialTasks, netHourlyRate }: TaskTableProps) {
 
   const openEdit = (task: TaskRow) => {
     setEditingTask(task);
-    form.reset({ externalId: task.externalId ?? "", title: task.title, description: "", plannedHours: task.plannedHours, actualHours: task.actualHours, status: task.status, plannedDate: task.plannedDate ?? "" });
+    form.reset({
+      externalId: task.externalId ?? "",
+      title: task.title,
+      description: "",
+      plannedHours: task.plannedHours,
+      actualHours: task.actualHours,
+      status: task.status,
+      plannedDate: task.completedAt?.slice(0, 10) ?? task.plannedDate ?? "",
+    });
     setDialogOpen(true);
   };
 
@@ -216,7 +224,7 @@ export function TaskTable({ initialTasks, netHourlyRate }: TaskTableProps) {
               </div>
               <div className={styles.dialogGrid}>
                 <Select label="Статус" options={statusOptions.filter((o) => o.value !== "ALL")} {...form.register("status")} />
-                <Input label="Дата" type="date" {...form.register("plannedDate")} />
+                <Input label="Дата завершения" type="date" {...form.register("plannedDate")} />
               </div>
             </DialogBody>
             <DialogFooter>

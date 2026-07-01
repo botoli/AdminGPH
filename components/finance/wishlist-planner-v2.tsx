@@ -21,6 +21,8 @@ export function WishlistPlannerV2({ freeCash, selectedTotal, afterWishlist, item
   const [showCreate, setShowCreate] = useState(false);
   const [error, setError] = useState("");
   const active = items.filter((item) => !item.completed);
+  const mandatoryDeficit = freeCash < 0 ? Math.abs(freeCash) : 0;
+  const wishlistDeficit = afterWishlist < 0 ? Math.abs(afterWishlist) : 0;
   const run = (action: () => Promise<void>) => startTransition(async () => {
     setError("");
     try {
@@ -34,8 +36,10 @@ export function WishlistPlannerV2({ freeCash, selectedTotal, afterWishlist, item
   return <div className={styles.page}>
     <header className={styles.header}><div><p className={styles.eyebrow}>План покупок</p><h1>Хотелки на {MONTHS[month - 1]}</h1><p>Выбирайте обычные покупки целиком или откладывайте часть суммы на крупные цели.</p></div><Button onClick={() => setShowCreate(!showCreate)}><Plus/>Добавить хотелку</Button></header>
     <section className={styles.balanceStrip} aria-label="Баланс хотелок">
-      <div><span>Свободно</span><strong>{formatCurrency(freeCash)}</strong></div><div><span>Выбрано</span><strong>{formatCurrency(selectedTotal)}</strong></div><div className={styles.balanceFinal}><span>Останется</span><strong>{formatCurrency(afterWishlist)}</strong></div>
+      <div><span>Свободно</span><strong className={mandatoryDeficit > 0 ? styles.balanceDanger : undefined}>{formatCurrency(freeCash)}</strong></div><div><span>Выбрано</span><strong>{formatCurrency(selectedTotal)}</strong></div><div className={`${styles.balanceFinal} ${wishlistDeficit > 0 ? styles.balanceFinalDanger : ""}`}><span>Останется</span><strong>{formatCurrency(afterWishlist)}</strong></div>
     </section>
+    {mandatoryDeficit > 0 ? <p className={styles.errorBanner} role="alert">Дохода не хватает на обязательные расходы: дефицит {formatCurrency(mandatoryDeficit)}.</p> : null}
+    {wishlistDeficit > 0 ? <p className={styles.errorBanner} role="alert">После выбранных хотелок получается дефицит {formatCurrency(wishlistDeficit)}.</p> : null}
     {error ? <p className={styles.errorBanner} role="alert">{error}</p> : null}
     {showCreate && <Card><Card.Content><form className={styles.createForm} action={(data) => run(async () => { await createWishlistItem(data); setShowCreate(false); })}><Input label="Название" name="title" required/><Input label="Стоимость" name="amount" type="number" min="1" required/><Input label="Ссылка на товар" name="productUrl" type="url" placeholder="https://www.ozon.ru/product/..."/><label className={styles.field}><span>Тип</span><select name="kind"><option value="PURCHASE">Купить в этом месяце</option><option value="SAVINGS">Накопительная цель</option></select></label><Button type="submit" disabled={pending}>Добавить</Button></form></Card.Content></Card>}
     <section className={styles.list}>

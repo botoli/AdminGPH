@@ -145,6 +145,10 @@
   color: var(--color-text);
 }
 
+.metricDanger {
+  color: var(--color-danger);
+}
+
 @media (max-width: 980px) {
   .pageGrid {
     grid-template-columns: 1fr;

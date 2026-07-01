@@ -145,6 +145,7 @@ export function FinanceCards({ data, className }: Props) {
   const weekPct = data.weeklyGoal > 0 ? Math.min((data.workedHoursWeek / data.weeklyGoal) * 100, 100) : 0;
   const monthPct = data.monthlyGoal > 0 ? Math.min((data.workedHoursMonth / data.monthlyGoal) * 100, 100) : 0;
   const step = wholeHours ? 1 : 0.5;
+  const freeCashDeficit = data.freeCash < 0 ? Math.abs(data.freeCash) : 0;
 
   return (
     <div className={[styles.wrapper, className].filter(Boolean).join(" ")}>
@@ -253,8 +254,8 @@ export function FinanceCards({ data, className }: Props) {
               </div>
               <div className={styles.metricRow}>
                 <span><Coins className={styles.metricIcon} />Свободно</span>
-                <strong>{formatCurrency(data.freeCash)}</strong>
-                <em>после расходов {formatCurrency(data.totalExpenses)}</em>
+                <strong className={freeCashDeficit > 0 ? styles.metricDanger : undefined}>{formatCurrency(data.freeCash)}</strong>
+                <em>{freeCashDeficit > 0 ? `Дефицит на обязательных расходах: ${formatCurrency(freeCashDeficit)}` : `после расходов ${formatCurrency(data.totalExpenses)}`}</em>
               </div>
               <div className={styles.metricRow}>
                 <span><Clock3 className={styles.metricIcon} />Часы</span>

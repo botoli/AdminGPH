@@ -334,6 +334,10 @@
   color: var(--color-text);
 }
 
+.metricDanger {
+  color: var(--color-danger);
+}
+
 .metricRow em {
   grid-column: 1 / -1;
   font-style: normal;

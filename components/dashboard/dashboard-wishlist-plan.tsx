@@ -45,6 +45,8 @@ export function DashboardWishlistPlan({ freeCash, items, monthName, editable }: 
     [allocations],
   );
   const afterWishlist = freeCash - selectedTotal;
+  const mandatoryDeficit = freeCash < 0 ? Math.abs(freeCash) : 0;
+  const wishlistDeficit = afterWishlist < 0 ? Math.abs(afterWishlist) : 0;
 
   const allocate = (item: DashboardWishlistItem, amount: number) => {
     if (!editable || pending) return;
@@ -83,7 +85,7 @@ export function DashboardWishlistPlan({ freeCash, items, monthName, editable }: 
       </div>
 
       <div className={styles.summary} aria-label="Баланс хотелок">
-        <div><span>Свободно</span><strong>{formatCurrency(freeCash)}</strong></div>
+        <div className={mandatoryDeficit > 0 ? styles.summaryDanger : undefined}><span>Свободно</span><strong>{formatCurrency(freeCash)}</strong></div>
         <div><span>Выбрано</span><strong>{formatCurrency(selectedTotal)}</strong></div>
         <div className={afterWishlist < 0 ? styles.summaryDanger : styles.summaryPositive}>
           <span>Останется</span><strong>{formatCurrency(afterWishlist)}</strong>
@@ -94,6 +96,8 @@ export function DashboardWishlistPlan({ freeCash, items, monthName, editable }: 
       </div>
 
       {!editable ? <p className={styles.readOnly}>Изменения доступны только в текущем месяце.</p> : null}
+      {mandatoryDeficit > 0 ? <p className={styles.error} role="alert">Дохода не хватает на обязательные расходы: дефицит {formatCurrency(mandatoryDeficit)}.</p> : null}
+      {wishlistDeficit > 0 ? <p className={styles.error} role="alert">После выбранных хотелок получается дефицит {formatCurrency(wishlistDeficit)}.</p> : null}
       {error ? <p className={styles.error} role="alert">{error}</p> : null}
 
       {active.length === 0 ? (

@@ -3,7 +3,6 @@ import {
   ArrowRight,
   CheckCircle2,
   Clock3,
-  GraduationCap,
   Home,
   PiggyBank,
   ReceiptText,
@@ -39,9 +38,10 @@ export async function MonthPanel({ period }: { period?: string }) {
   const wishlistEditable = isSameMonth(date, getCurrentAppDate());
   const fixed = overview.expenseRows.filter((row) => row.isFixed);
   const home = fixed.find((row) => "percent" in row && row.percent === 40);
-  const study = fixed.find((row) => "percent" in row && row.percent === 5);
   const workedDays = overview.workedHoursMonth / 8;
   const remainingHours = Math.max(0, overview.monthlyGoal - overview.workedHoursMonth);
+  const mandatoryDeficit = overview.freeCash < 0 ? Math.abs(overview.freeCash) : 0;
+  const wishlistDeficit = overview.afterWishlist < 0 ? Math.abs(overview.afterWishlist) : 0;
   const cards = [
     {
       label: "Доход на руки",
@@ -53,16 +53,20 @@ export async function MonthPanel({ period }: { period?: string }) {
     {
       label: "Свободно после обязательных трат",
       value: overview.freeCash,
-      hint: "Копилки и расходы уже учтены",
+      hint: mandatoryDeficit > 0
+        ? `Дохода не хватает на обязательные расходы: дефицит ${formatCurrency(mandatoryDeficit)}`
+        : "Копилки и расходы уже учтены",
       icon: PiggyBank,
-      tone: styles.mintTone,
+      tone: mandatoryDeficit > 0 ? styles.dangerTone : styles.mintTone,
     },
     {
       label: "После выбранных хотелок",
       value: overview.afterWishlist,
-      hint: `${Math.max(0, Math.round((overview.afterWishlist / Math.max(overview.monthlyIncome, 1)) * 100))}% от дохода на руки`,
+      hint: wishlistDeficit > 0
+        ? `Выбрано больше, чем доступно: дефицит ${formatCurrency(wishlistDeficit)}`
+        : `${Math.max(0, Math.round((overview.afterWishlist / Math.max(overview.monthlyIncome, 1)) * 100))}% от дохода на руки`,
       icon: ShoppingBag,
-      tone: styles.roseTone,
+      tone: wishlistDeficit > 0 ? styles.dangerTone : styles.roseTone,
     },
   ];
 
@@ -148,7 +152,6 @@ export async function MonthPanel({ period }: { period?: string }) {
           </div>
           <div className={styles.deductionGrid}>
             <Deduction icon={<Home />} label="Копилка на квартиру" note="40% от дохода на руки" value={home?.amount ?? 0} />
-            <Deduction icon={<GraduationCap />} label="Копилка на учёбу" note="5% от дохода на руки" value={study?.amount ?? 0} />
             <Deduction icon={<WalletCards />} label="Прочие расходы" note="фиксированные траты" value={overview.totalManualExpenses} />
           </div>
           <Link href="/expenses" prefetch={false} className={styles.expenseLink}>
