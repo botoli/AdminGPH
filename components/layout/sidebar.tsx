@@ -2,13 +2,12 @@
 
 import styles from "./sidebar.module.css";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import {
   LayoutDashboard,
   ListTodo,
   Calendar,
-  BarChart3,
   WalletCards,
   FileUpIcon,
   Heart,
@@ -16,7 +15,11 @@ import {
   BriefcaseBusiness,
   Menu,
   X,
+  SquareArrowRightIcon,
+  SquareArrowLeftIcon,
 } from "lucide-react";
+import { MonthSelector } from "@/components/dashboard/month-selector";
+import { getMonthValue, resolveSelectedMonthDate } from "@/lib/selected-month";
 
 interface NavItem {
   label: string;
@@ -51,10 +54,46 @@ interface SidebarProps {
   variant?: "default" | "dashboard";
 }
 
+const SIDEBAR_COLLAPSED_KEY = "admingph.sidebar.collapsed";
+const SIDEBAR_COLLAPSED_EVENT = "admingph:sidebar-collapsed";
+
+function subscribeToCollapsedState(onStoreChange: () => void) {
+  window.addEventListener("storage", onStoreChange);
+  window.addEventListener(SIDEBAR_COLLAPSED_EVENT, onStoreChange);
+
+  return () => {
+    window.removeEventListener("storage", onStoreChange);
+    window.removeEventListener(SIDEBAR_COLLAPSED_EVENT, onStoreChange);
+  };
+}
+
+function getCollapsedSnapshot() {
+  return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === "1";
+}
+
+function getServerCollapsedSnapshot() {
+  return false;
+}
+
 export function Sidebar({ variant = "default" }: SidebarProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
   const isDashboard = variant === "dashboard";
+  const storedCollapsedState = useSyncExternalStore(
+    subscribeToCollapsedState,
+    getCollapsedSnapshot,
+    getServerCollapsedSnapshot,
+  );
+  const isCollapsed = isDashboard && storedCollapsedState;
+  const selectedMonth = searchParams.get("month");
+  const monthDate = resolveSelectedMonthDate(selectedMonth);
+  const monthValue = getMonthValue(monthDate);
+  const monthLabel = new Intl.DateTimeFormat("ru-RU", {
+    month: "long",
+    year: "numeric",
+  }).format(monthDate);
+  const monthTitle = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -70,6 +109,15 @@ export function Sidebar({ variant = "default" }: SidebarProps) {
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
     return pathname.startsWith(href);
+  };
+
+  const getNavHref = (href: string) => {
+    return `${href}?month=${monthValue}`;
+  };
+
+  const toggleCollapsed = () => {
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, isCollapsed ? "0" : "1");
+    window.dispatchEvent(new Event(SIDEBAR_COLLAPSED_EVENT));
   };
 
   return (
@@ -107,7 +155,7 @@ export function Sidebar({ variant = "default" }: SidebarProps) {
       ) : null}
 
       <aside
-        className={`${styles.sidebar} ${isDashboard ? styles.dashboardSidebar : ""} ${isOpen ? styles.sidebarOpen : ""}`}
+        className={`${styles.sidebar} ${isDashboard ? styles.dashboardSidebar : ""} ${isDashboard && isCollapsed ? styles.dashboardSidebarCollapsed : ""} ${isOpen ? styles.sidebarOpen : ""}`}
         aria-label="Основная навигация"
       >
         <div className={styles.brand}>
@@ -118,6 +166,23 @@ export function Sidebar({ variant = "default" }: SidebarProps) {
             <span className={styles.brandText}>Подрядчик</span>
             <span className={styles.brandMeta}>Личный пульт управления</span>
           </div>
+          {isDashboard ? (
+            <button
+              type="button"
+              className={styles.collapseButton}
+              aria-label={
+                isCollapsed ? "Развернуть сайдбар" : "Свернуть сайдбар"
+              }
+              aria-pressed={isCollapsed}
+              onClick={toggleCollapsed}
+            >
+              {isCollapsed ? (
+                <SquareArrowRightIcon className={styles.menuIcon} />
+              ) : (
+                <SquareArrowLeftIcon className={styles.menuIcon} />
+              )}
+            </button>
+          ) : null}
           <button
             type="button"
             className={styles.closeButton}
@@ -126,6 +191,15 @@ export function Sidebar({ variant = "default" }: SidebarProps) {
           >
             <X className={styles.menuIcon} />
           </button>
+        </div>
+
+        <div className={styles.monthSelector}>
+          <MonthSelector
+            value={monthValue}
+            label={monthTitle}
+            storageKey="admingph.selected-month"
+            compact={isDashboard && isCollapsed}
+          />
         </div>
 
         <nav className={styles.nav}>
@@ -142,12 +216,14 @@ export function Sidebar({ variant = "default" }: SidebarProps) {
                   return (
                     <li key={item.href}>
                       <Link
-                        href={item.href}
+                        href={getNavHref(item.href)}
                         prefetch={false}
                         className={`${styles.link} ${active ? styles.linkActive : ""}`}
                         aria-label={item.label}
                         aria-current={active ? "page" : undefined}
-                        title={isDashboard ? item.label : undefined}
+                        title={
+                          isDashboard && isCollapsed ? item.label : undefined
+                        }
                         onClick={() => setIsOpen(false)}
                       >
                         <Icon
@@ -165,7 +241,7 @@ export function Sidebar({ variant = "default" }: SidebarProps) {
 
         <div className={styles.footer}>
           <p className={styles.footerText}>
-            Текущий месяц: заработано, распределено, осталось.
+            Выбранный месяц применяется на всех страницах.
           </p>
         </div>
       </aside>

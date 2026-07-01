@@ -5,10 +5,13 @@ import styles from "./page.module.css";
 import { getTasksWithActualHours } from "@/actions/task-actions";
 import { db } from "@/lib/db";
 import { calculateAfterNdfl } from "@/lib/money";
+import { getMonthValue, resolveSelectedMonthDate } from "@/lib/selected-month";
 
 export const dynamic = "force-dynamic";
 
-export default async function TasksPage() {
+export default async function TasksPage({ searchParams }: { searchParams: Promise<{ month?: string }> }) {
+  const { month } = await searchParams;
+  const selectedMonth = getMonthValue(resolveSelectedMonthDate(month));
   const [tasks, settings] = await Promise.all([
     getTasksWithActualHours(),
     db.settings.findUnique({ where: { id: "default" } }),
@@ -35,7 +38,11 @@ export default async function TasksPage() {
             Управление задачами и отслеживание прогресса
           </p>
         </header>
-        <TaskTable initialTasks={taskRows} netHourlyRate={calculateAfterNdfl((settings?.dailyRate ?? (settings?.hourlyRate ?? 1000) * 8) / 8)} />
+        <TaskTable
+          initialTasks={taskRows}
+          netHourlyRate={calculateAfterNdfl((settings?.dailyRate ?? (settings?.hourlyRate ?? 1000) * 8) / 8)}
+          selectedMonth={selectedMonth}
+        />
       </div>
     </AppShell>
   );

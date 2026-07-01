@@ -30,6 +30,7 @@ export interface CalendarEvent {
 interface CalendarViewProps {
   initialEvents: CalendarEvent[];
   tasks: Array<{ id: string; title: string; externalId: string | null }>;
+  initialDate: string;
 }
 
 const EVENT_COLORS = [
@@ -44,7 +45,7 @@ const scheduleSchema = z.object({
 });
 type ScheduleFormValues = z.infer<typeof scheduleSchema>;
 
-export function CalendarView({ initialEvents, tasks }: CalendarViewProps) {
+export function CalendarView({ initialEvents, tasks, initialDate }: CalendarViewProps) {
   const router = useRouter();
   const [events, setEvents] = useState(initialEvents);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -180,6 +181,7 @@ export function CalendarView({ initialEvents, tasks }: CalendarViewProps) {
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
+          initialDate={initialDate}
           headerToolbar={{
             left: "prev,next today",
             center: "title",

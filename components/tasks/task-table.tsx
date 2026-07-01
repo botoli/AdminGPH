@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./task-table.module.css";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,6 @@ import { formatCurrency, formatHours } from "@/lib/utils";
 import { Plus, Search, Pencil, Trash2 } from "lucide-react";
 import { createTask, updateTask, deleteTask, updateTaskStatus } from "@/actions/task-actions";
 import { MonthSelector } from "@/components/dashboard/month-selector";
-import { getCurrentAppMonthValue } from "@/lib/app-date";
 
 export interface TaskRow {
   id: string;
@@ -39,6 +38,7 @@ export interface TaskRow {
 interface TaskTableProps {
   initialTasks: TaskRow[];
   netHourlyRate: number;
+  selectedMonth: string;
 }
 
 const taskFormSchema = z.object({
@@ -54,32 +54,31 @@ const taskFormSchema = z.object({
 type TaskFormValues = z.infer<typeof taskFormSchema>;
 type TaskFormInput = z.input<typeof taskFormSchema>;
 
-export function TaskTable({ initialTasks, netHourlyRate }: TaskTableProps) {
+export function TaskTable({ initialTasks, netHourlyRate, selectedMonth }: TaskTableProps) {
   const router = useRouter();
   const [globalFilter, setGlobalFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
-  const [monthFilter, setMonthFilter] = useState(getCurrentAppMonthValue);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskRow | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<TaskRow | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const monthLabel = useMemo(() => {
-    const [year, month] = monthFilter.split("-").map(Number);
+    const [year, month] = selectedMonth.split("-").map(Number);
     if (!year || !month) return "Все месяцы";
     const label = new Intl.DateTimeFormat("ru-RU", { month: "long", year: "numeric" }).format(new Date(year, month - 1, 1));
     return label.charAt(0).toUpperCase() + label.slice(1);
-  }, [monthFilter]);
+  }, [selectedMonth]);
 
   const filteredByStatus = useMemo(() => {
     const query = globalFilter.trim().toLowerCase();
     return initialTasks.filter((task) => {
       const matchesStatus = statusFilter === "ALL" || task.status === statusFilter;
       const taskMonth = (task.completedAt ?? task.plannedDate ?? "").slice(0, 7);
-      const matchesMonth = monthFilter === "ALL" || taskMonth === monthFilter;
+      const matchesMonth = taskMonth === selectedMonth;
       const matchesQuery = !query || task.title.toLowerCase().includes(query) || task.externalId?.toLowerCase().includes(query);
       return matchesStatus && matchesMonth && matchesQuery;
     });
-  }, [initialTasks, statusFilter, monthFilter, globalFilter]);
+  }, [globalFilter, initialTasks, selectedMonth, statusFilter]);
   const totals = useMemo(() => filteredByStatus.reduce((sum, task) => ({ plan: sum.plan + task.plannedHours, actual: sum.actual + task.actualHours, amount: sum.amount + task.actualHours * netHourlyRate }), { plan: 0, actual: 0, amount: 0 }), [filteredByStatus, netHourlyRate]);
 
   const form = useForm<TaskFormInput, undefined, TaskFormValues>({
@@ -164,10 +163,9 @@ export function TaskTable({ initialTasks, netHourlyRate }: TaskTableProps) {
         </div>
         <Select options={statusOptions} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} />
         <MonthSelector
-          value={monthFilter === "ALL" ? "" : monthFilter}
+          value={selectedMonth}
           label={monthLabel}
-          onChange={setMonthFilter}
-          storageKey="admingph.tasks.month"
+          storageKey="admingph.selected-month"
         />
         <Button onClick={openCreate} style={{ marginLeft: "auto" }}><Plus style={{ width: "1rem", height: "1rem", marginRight: "0.375rem" }} />Добавить задачу</Button>
       </div>

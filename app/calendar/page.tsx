@@ -3,6 +3,7 @@ import { CalendarView } from "@/components/calendar/calendar-view";
 import type { CalendarEvent } from "@/components/calendar/calendar-view";
 import { db } from "@/lib/db";
 import { getCompletedTasksInRange } from "@/lib/task-metrics";
+import { getMonthValue, resolveSelectedMonthDate } from "@/lib/selected-month";
 import styles from "./page.module.css";
 import { startOfMonth, endOfMonth, format } from "date-fns";
 
@@ -13,10 +14,11 @@ const COLORS = [
   "#c28b69", "#a96f91", "#7e78b8", "#8b6eaa",
 ];
 
-export default async function CalendarPage() {
-  const now = new Date();
-  const start = format(startOfMonth(now), "yyyy-MM-dd");
-  const end = format(endOfMonth(now), "yyyy-MM-dd");
+export default async function CalendarPage({ searchParams }: { searchParams: Promise<{ month?: string }> }) {
+  const { month } = await searchParams;
+  const selectedDate = resolveSelectedMonthDate(month);
+  const start = format(startOfMonth(selectedDate), "yyyy-MM-dd");
+  const end = format(endOfMonth(selectedDate), "yyyy-MM-dd");
 
   const [schedules, tasks] = await Promise.all([
     db.taskSchedule.findMany({
@@ -76,7 +78,7 @@ export default async function CalendarPage() {
           <h1 className={styles.title}>Календарь</h1>
           <p className={styles.subtitle}>Планируйте задачи по дням</p>
         </header>
-        <CalendarView initialEvents={[...events, ...completedEvents]} tasks={taskList} />
+        <CalendarView initialEvents={[...events, ...completedEvents]} tasks={taskList} initialDate={getMonthValue(selectedDate)} />
       </div>
     </AppShell>
   );

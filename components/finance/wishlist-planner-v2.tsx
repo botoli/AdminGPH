@@ -11,11 +11,11 @@ import { formatCurrency } from "@/lib/utils";
 import styles from "./wishlist-planner-v2.module.css";
 
 interface Item { id:string; title:string; amount:number; kind:string; savedAmount:number; allocationAmount:number; remainingAmount:number; completed:boolean; productUrl:string | null; productImageUrl:string | null; productSource:string | null; }
-interface Props { freeCash:number; selectedTotal:number; afterWishlist:number; items:Item[]; month:number; }
+interface Props { freeCash:number; selectedTotal:number; afterWishlist:number; items:Item[]; month:number; year:number; }
 const MONTHS = ["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"];
 const SOURCE_LABELS: Record<string, string> = { wildberries: "WB", ozon: "OZON", avito: "Avito", other: "Ссылка" };
 
-export function WishlistPlannerV2({ freeCash, selectedTotal, afterWishlist, items, month }: Props) {
+export function WishlistPlannerV2({ freeCash, selectedTotal, afterWishlist, items, month, year }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [showCreate, setShowCreate] = useState(false);
@@ -45,18 +45,25 @@ export function WishlistPlannerV2({ freeCash, selectedTotal, afterWishlist, item
     <section className={styles.list}>
       {active.length === 0 ? <div className={styles.empty}>Список пуст. Добавьте первую покупку или накопительную цель.</div> : active.map((item) => {
         const availableForItem = Math.max(0, afterWishlist + item.allocationAmount);
-        return <WishlistRow key={item.id} item={item} available={availableForItem} pending={pending} run={run}/>;
+        return <WishlistRow key={item.id} item={item} available={availableForItem} pending={pending} run={run} month={month} year={year} />;
       })}
     </section>
   </div>;
 }
 
-function WishlistRow({ item, available, pending, run }: { item:Item; available:number; pending:boolean; run:(action:()=>Promise<void>)=>void }) {
+function WishlistRow({ item, available, pending, run, month, year }: { item:Item; available:number; pending:boolean; run:(action:()=>Promise<void>)=>void; month:number; year:number }) {
   const [contribution, setContribution] = useState(String(item.allocationAmount || Math.min(item.remainingAmount, available)));
   const isSavings = item.kind === "SAVINGS";
   const shortage = Math.max(0, item.amount - available);
   const selected = item.allocationAmount > 0;
-  const allocate = (amount:number) => { const data = new FormData(); data.set("id", item.id); data.set("amount", String(amount)); run(() => setWishlistAllocation(data)); };
+  const allocate = (amount:number) => {
+    const data = new FormData();
+    data.set("id", item.id);
+    data.set("amount", String(amount));
+    data.set("month", String(month));
+    data.set("year", String(year));
+    run(() => setWishlistAllocation(data));
+  };
   return <article className={`${styles.item} ${selected ? styles.itemSelected : ""}`}>
     <div className={styles.previewRow}>
       {item.productImageUrl ? (

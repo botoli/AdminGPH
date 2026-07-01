@@ -2,14 +2,17 @@ import { AppShell } from "@/components/layout/app-shell";
 import { WorklogTable } from "@/components/worklog/worklog-table";
 import { getWorklogs } from "@/actions/worklog-actions";
 import { db } from "@/lib/db";
+import { getMonthDateRange } from "@/lib/selected-month";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
 
-export default async function WorklogPage() {
+export default async function WorklogPage({ searchParams }: { searchParams: Promise<{ month?: string }> }) {
+  const { month } = await searchParams;
+  const { startDate, endDate, monthValue } = getMonthDateRange(month);
   const [settings, worklogs, tasks] = await Promise.all([
     db.settings.findUnique({ where: { id: "default" } }),
-    getWorklogs(),
+    getWorklogs({ startDate, endDate }),
     db.task.findMany({
       select: { id: true, title: true, externalId: true },
       orderBy: { title: "asc" },
@@ -37,6 +40,9 @@ export default async function WorklogPage() {
           }))}
           initialTasks={tasks}
           hourlyRate={(settings?.dailyRate ?? (settings?.hourlyRate ?? 1000) * 8) / 8}
+          selectedMonth={monthValue}
+          initialStartDate={startDate}
+          initialEndDate={endDate}
         />
       </div>
     </AppShell>

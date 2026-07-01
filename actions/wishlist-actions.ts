@@ -52,8 +52,12 @@ export async function updateWishlistItem(formData: FormData) {
 }
 
 export async function setWishlistAllocation(formData: FormData) {
-  const parsed = allocateWishlistItemSchema.parse(Object.fromEntries(formData.entries()));
-  const overview = await getFinanceOverview();
+  const raw = Object.fromEntries(formData.entries());
+  const parsed = allocateWishlistItemSchema.parse(raw);
+  const selectedDate = Number.isInteger(Number(raw.year)) && Number.isInteger(Number(raw.month))
+    ? new Date(Number(raw.year), Number(raw.month) - 1, 1, 12)
+    : undefined;
+  const overview = await getFinanceOverview(selectedDate);
   const item = await db.wishlistItem.findUniqueOrThrow({ where: { id: parsed.id } });
   const currentAllocation = item.allocationMonth === overview.period.month && item.allocationYear === overview.period.year
     ? item.allocationAmount

@@ -2,12 +2,14 @@ import { AppShell } from "@/components/layout/app-shell";
 import { FinanceCards } from "@/components/finance/finance-cards";
 import type { FinanceData } from "@/components/finance/finance-cards";
 import { getFinanceOverview } from "@/lib/finance-overview";
+import { resolveSelectedMonthDate } from "@/lib/selected-month";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
 
-export default async function FinancePage() {
-  const overview = await getFinanceOverview();
+export default async function FinancePage({ searchParams }: { searchParams: Promise<{ month?: string }> }) {
+  const { month } = await searchParams;
+  const overview = await getFinanceOverview(resolveSelectedMonthDate(month));
 
   const data: FinanceData = {
     dailyRate: overview.dailyRate,

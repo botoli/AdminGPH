@@ -1,12 +1,14 @@
 import { AppShell } from "@/components/layout/app-shell";
 import { ExpensePlanner } from "@/components/finance/expense-planner";
 import { getFinanceOverview } from "@/lib/finance-overview";
+import { resolveSelectedMonthDate } from "@/lib/selected-month";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
 
-export default async function ExpensesPage() {
-  const overview = await getFinanceOverview();
+export default async function ExpensesPage({ searchParams }: { searchParams: Promise<{ month?: string }> }) {
+  const { month } = await searchParams;
+  const overview = await getFinanceOverview(resolveSelectedMonthDate(month));
 
   return (
     <AppShell variant="dashboard">

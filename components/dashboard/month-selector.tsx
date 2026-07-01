@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import styles from "./month-selector.module.css";
 
 interface MonthSelectorProps {
@@ -10,6 +10,7 @@ interface MonthSelectorProps {
   label: string;
   onChange?: (value: string) => void;
   storageKey?: string;
+  compact?: boolean;
 }
 
 const MONTHS = [
@@ -17,12 +18,21 @@ const MONTHS = [
   "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь",
 ];
 
-export function MonthSelector({ value, label, onChange, storageKey }: MonthSelectorProps) {
+export function MonthSelector({ value, label, onChange, storageKey, compact = false }: MonthSelectorProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [selectedYear, selectedMonth] = value.split("-").map(Number);
   const [year, setYear] = useState(selectedYear || new Date().getFullYear());
+  const urlMonth = searchParams.get("month");
+
+  const navigateToMonth = useCallback((month: string, replace = false) => {
+    const nextUrl = `${pathname}?month=${month}`;
+    if (replace) router.replace(nextUrl);
+    else router.push(nextUrl);
+  }, [pathname, router]);
 
   useEffect(() => {
     if (!open) return;
@@ -42,17 +52,18 @@ export function MonthSelector({ value, label, onChange, storageKey }: MonthSelec
 
   useEffect(() => {
     if (!storageKey) return;
+    if (urlMonth && /^\d{4}-(0[1-9]|1[0-2])$/.test(urlMonth)) return;
     const savedMonth = localStorage.getItem(storageKey);
     if (!savedMonth || savedMonth === value || !/^\d{4}-(0[1-9]|1[0-2])$/.test(savedMonth)) return;
     if (onChange) onChange(savedMonth);
-    else router.replace(`/?month=${savedMonth}`);
-  }, [onChange, router, storageKey, value]);
+    else navigateToMonth(savedMonth, true);
+  }, [navigateToMonth, onChange, storageKey, urlMonth, value]);
 
   const selectMonth = (month: string) => {
     if (!month) return;
     if (storageKey) localStorage.setItem(storageKey, month);
     if (onChange) onChange(month);
-    else router.push(`/?month=${month}`);
+    else navigateToMonth(month);
     setOpen(false);
   };
 
@@ -60,7 +71,7 @@ export function MonthSelector({ value, label, onChange, storageKey }: MonthSelec
     <div className={styles.wrapper} ref={wrapperRef}>
       <button
         type="button"
-        className={styles.control}
+        className={`${styles.control} ${compact ? styles.compactControl : ""}`}
         aria-expanded={open}
         aria-haspopup="dialog"
         onClick={() => {
@@ -69,11 +80,11 @@ export function MonthSelector({ value, label, onChange, storageKey }: MonthSelec
         }}
       >
         <CalendarDays aria-hidden="true" />
-        <span>{label}</span>
-        <ChevronDown className={styles.chevron} aria-hidden="true" />
+        {!compact ? <span>{label}</span> : null}
+        {!compact ? <ChevronDown className={styles.chevron} aria-hidden="true" /> : null}
       </button>
       {open ? (
-        <div className={styles.picker} role="dialog" aria-label="Выбор месяца">
+        <div className={`${styles.picker} ${compact ? styles.compactPicker : ""}`} role="dialog" aria-label="Выбор месяца">
           <div className={styles.yearRow}>
             <button type="button" onClick={() => setYear((current) => current - 1)} aria-label="Предыдущий год"><ChevronLeft /></button>
             <strong>{year}</strong>

@@ -2,7 +2,7 @@
 
 import styles from "./worklog-table.module.css";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,9 @@ interface Props {
   initialWorklogs: WorklogRow[];
   initialTasks: Array<{ id: string; title: string; externalId: string | null }>;
   hourlyRate: number;
+  selectedMonth: string;
+  initialStartDate: string;
+  initialEndDate: string;
 }
 
 const schema = z.object({
@@ -36,15 +39,26 @@ const schema = z.object({
 type FV = z.output<typeof schema>;
 type FVI = z.input<typeof schema>;
 
-export function WorklogTable({ initialWorklogs, initialTasks, hourlyRate }: Props) {
+export function WorklogTable({
+  initialWorklogs,
+  initialTasks,
+  hourlyRate,
+  selectedMonth,
+  initialStartDate,
+  initialEndDate,
+}: Props) {
   const r = useRouter();
   const [worklogs] = useState(initialWorklogs);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(initialStartDate);
+  const [endDate, setEndDate] = useState(initialEndDate);
   const [open, setOpen] = useState(false);
   const [edit, setEdit] = useState<WorklogRow | null>(null);
   const [del, setDel] = useState<WorklogRow | null>(null);
   const [sub, setSub] = useState(false);
+  const defaultWorkDate = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    return today.startsWith(selectedMonth) ? today : `${selectedMonth}-01`;
+  }, [selectedMonth]);
 
   const opts = initialTasks.map(t => ({
     value: t.id,
@@ -65,7 +79,7 @@ export function WorklogTable({ initialWorklogs, initialTasks, hourlyRate }: Prop
 
   const openCreate = () => {
     setEdit(null);
-    form.reset({ taskId: "", workDate: new Date().toISOString().slice(0,10), hours: 1, comment: "" });
+    form.reset({ taskId: "", workDate: defaultWorkDate, hours: 1, comment: "" });
     setOpen(true);
   };
 

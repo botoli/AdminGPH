@@ -36,7 +36,7 @@ The application follows a **Server Components + Server Actions** pattern (no API
 1. **Pages** (`app/*/page.tsx`) are async Server Components that fetch data directly from Prisma or via Server Actions, then pass it as props to Client Components.
 2. **Mutations** use Next.js Server Actions (`actions/*.ts`, marked `"use server"`). They parse FormData with Zod schemas, write to Prisma, and call `revalidatePath()` to invalidate the Next.js full-route cache.
 3. **Client Components** (`components/**/*.tsx`) are interactive islands for forms, tables, dialogs, and the calendar. They receive initial data as props and call Server Actions for mutations.
-4. There is **no global state management** beyond React Query's cache (used only in `Providers`). All shared state flows through server-rendered props and `router.refresh()` after mutations.
+4. There is **no global state management** beyond React Query's cache (used only in `Providers`). The only cross-page UI state is the selected month in the `?month=yyyy-MM` query param, which pages read on the server and preserve through sidebar navigation.
 
 Data flow: `Server Component (page.tsx)` → reads DB → passes to `Client Component` → user interaction → `Server Action` → writes DB → `revalidatePath()` → `router.refresh()` → re-render.
 
@@ -115,7 +115,7 @@ Data flow: `Server Component (page.tsx)` → reads DB → passes to `Client Comp
 - **Client state**: Minimal — `useState` for form inputs, dialog open/close, filter states. No global client store (no Redux, Zustand, Jotai, etc.).
 - **Form state**: `react-hook-form` with `zodResolver` in `TaskTable`; plain `useState` + hidden inputs in `ExpensePlanner`.
 - **Auth state**: None — no authentication.
-- **URL state**: `usePathname()` in Sidebar for active link highlighting only.
+- **URL state**: `?month=yyyy-MM` is the shared selected period across pages; Sidebar also uses `usePathname()` for active link highlighting.
 
 ## 8. API Layer
 

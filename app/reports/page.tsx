@@ -8,6 +8,7 @@ import {
   storeMonthlyReport,
   type ReportData,
 } from "@/lib/reports";
+import { isMonthValue, resolveSelectedMonthDate } from "@/lib/selected-month";
 import styles from "./page.module.css";
 import { FileText, Download } from "lucide-react";
 
@@ -15,15 +16,19 @@ export const dynamic = "force-dynamic";
 
 export default async function ReportsPage({ searchParams }: { searchParams: Promise<{ month?: string; year?: string; generate?: string }> }) {
   const params = await searchParams;
-  const now = new Date();
+  const defaultDate = resolveSelectedMonthDate(params.month);
   const parsedMonth = params.month ? Number.parseInt(params.month, 10) : NaN;
   const parsedYear = params.year ? Number.parseInt(params.year, 10) : NaN;
-  const selectedMonth = Number.isInteger(parsedMonth) && parsedMonth >= 1 && parsedMonth <= 12
+  const selectedMonth = isMonthValue(params.month)
+    ? defaultDate.getMonth() + 1
+    : Number.isInteger(parsedMonth) && parsedMonth >= 1 && parsedMonth <= 12
     ? parsedMonth
-    : now.getMonth() + 1;
-  const selectedYear = Number.isInteger(parsedYear)
+    : defaultDate.getMonth() + 1;
+  const selectedYear = isMonthValue(params.month)
+    ? defaultDate.getFullYear()
+    : Number.isInteger(parsedYear)
     ? parsedYear
-    : now.getFullYear();
+    : defaultDate.getFullYear();
   const shouldGenerate = params.generate === "1";
   let reportData: ReportData | null = null;
   if (shouldGenerate) {
@@ -32,7 +37,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
   }
   const storedReports = await getStoredReports();
   const months = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
-  const years = Array.from({ length: 5 }, (_, i) => now.getFullYear() - 2 + i);
+  const years = Array.from({ length: 5 }, (_, i) => defaultDate.getFullYear() - 2 + i);
 
   return (
     <AppShell variant="dashboard">
